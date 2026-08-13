@@ -1,4 +1,4 @@
-const CACHE = "aj-hub-v2";
+const CACHE = "aj-hub-v3";
 const CORE = ["/", "/manifest.webmanifest", "/icon-192.png", "/icon-512.png"];
 
 self.addEventListener("install", (event) => {
