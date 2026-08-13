@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 
 type LinkItem = { name: string; url: string; key: string; tone: string };
 
@@ -44,14 +44,6 @@ export default function Home() {
     };
   }, []);
 
-  const greeting = useMemo(() => {
-    const hour = time?.getHours() ?? 12;
-    if (hour < 5) return "Still awake?";
-    if (hour < 12) return "Good morning.";
-    if (hour < 18) return "Good afternoon.";
-    return "Good evening.";
-  }, [time]);
-
   function search(event: FormEvent) {
     event.preventDefault();
     const value = query.trim();
@@ -80,10 +72,6 @@ export default function Home() {
       </header>
 
       <section className="hero">
-        <div>
-          <p className="eyebrow">PERSONAL STARTING POINT</p>
-          <h1>{greeting}</h1>
-        </div>
         <time>{time?.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) ?? "--:--"}</time>
       </section>
 
