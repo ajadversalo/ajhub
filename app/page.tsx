@@ -253,8 +253,8 @@ export default function Home() {
       <div className="ambient two" />
 
       <header className="topbar">
-        <a className="brand" href="/" aria-label="AJ Hub home">
-          <span>AJ</span>HUB
+        <a className="brand" href="/" aria-label="AJ's Hub home">
+          <span>AJ</span>'S HUB
         </a>
         <div className="date">
           {time?.toLocaleDateString("en-CA", { weekday: "long", month: "long", day: "numeric" })}
