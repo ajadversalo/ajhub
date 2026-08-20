@@ -1,4 +1,5 @@
 import { getTurso } from "@/db/turso";
+import { getRequestUser } from "@/app/auth";
 
 const defaultLinks = [
   ["mail", "Mail", "M", "https://mail.google.com"],
@@ -26,19 +27,20 @@ async function ensureLinksTable() {
   )`);
   await db.execute("CREATE TABLE IF NOT EXISTS launchpad_link_meta (id TEXT PRIMARY KEY, name TEXT NOT NULL, monogram TEXT NOT NULL)");
   await db.batch(
-    defaultLinks.map(([id, , , url]) => ({
+    [...defaultLinks.map(([id, , , url]) => ({
       sql: "INSERT OR IGNORE INTO launchpad_links (id, url) VALUES (?, ?)",
       args: [id, url],
-    })).concat(defaultLinks.map(([id, name, monogram]) => ({
+    })), ...defaultLinks.map(([id, name, monogram]) => ({
       sql: "INSERT OR IGNORE INTO launchpad_link_meta (id, name, monogram) VALUES (?, ?, ?)",
       args: [id, name, monogram],
-    }))),
+    }))],
     "write",
   );
   return db;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  if (!await getRequestUser(request)) return Response.json({ error: "Unauthorized" }, { status: 401 });
   try {
     const db = await ensureLinksTable();
     const result = await db.execute("SELECT l.id, l.url, m.name, m.monogram FROM launchpad_links l JOIN launchpad_link_meta m ON m.id = l.id");
@@ -51,6 +53,7 @@ export async function GET() {
 }
 
 export async function PUT(request: Request) {
+  if (!await getRequestUser(request)) return Response.json({ error: "Unauthorized" }, { status: 401 });
   try {
     const body = await request.json() as { id?: unknown; url?: unknown; name?: unknown; key?: unknown };
     if (typeof body.id !== "string" || !validIds.has(body.id as typeof defaultLinks[number][0])) {
