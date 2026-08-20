@@ -324,3 +324,95 @@ main{width:100%;max-width:none;padding-left:clamp(20px,3vw,56px);padding-right:c
 .market-item small{min-width:0;white-space:normal;overflow-wrap:anywhere;line-height:1.35}
 .market-item strong{max-width:100%;font-size:clamp(17px,1.7vw,29px);overflow-wrap:anywhere}
 @media(max-width:520px){.market-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.market-item:first-child{padding-left:12px}.market-item:last-child{padding-right:12px}}
+
+/* Signal Desk typography and dark-mode palette */
+:root{
+  --font-ui:var(--font-geist-sans),"Helvetica Neue",Arial,sans-serif;
+  --font-data:var(--font-geist-mono),"SFMono-Regular",Consolas,monospace;
+}
+html,body,button,input,textarea,select{font-family:var(--font-ui)}
+.date,.status,.eyebrow,.number,.section-heading span,.theme-toggle b,
+.launch-card strong:before,.ai-links a,.market-item span,.market-item b,
+.market-note,.calendar-weekdays span,.calendar-grid span,footer{
+  font-family:var(--font-data);
+}
+
+[data-theme="dark"]{
+  --bg:#080d0a;
+  --surface:#0d1510;
+  --surface-2:#131d16;
+  --ink:#eef2ee;
+  --muted:#89938c;
+  --line:#243029;
+  --green:#a8ff36;
+  --green-dim:#263d18;
+  color-scheme:dark;
+}
+[data-theme="dark"] body{
+  background:
+    radial-gradient(circle at 82% 9%,#17312280 0,transparent 29%),
+    radial-gradient(circle at 13% 88%,#10221870 0,transparent 28%),
+    var(--bg);
+  background-attachment:fixed;
+}
+[data-theme="dark"] .topbar{border-color:var(--line)}
+[data-theme="dark"] .brand span{
+  border-radius:0;
+  background:var(--green);
+  color:#071008;
+}
+[data-theme="dark"] .status i{
+  background:var(--green);
+  box-shadow:0 0 11px #a8ff36b8;
+}
+[data-theme="dark"] .theme-track i{background:var(--green)}
+[data-theme="dark"] .search,
+[data-theme="dark"] .launch-card,
+[data-theme="dark"] .commands,
+[data-theme="dark"] .link-modal{
+  background:#0d1510d9;
+  border-color:var(--line);
+  box-shadow:none;
+}
+[data-theme="dark"] .search:focus-within{border-color:var(--green)}
+[data-theme="dark"] .search-icon{border-color:var(--green)}
+[data-theme="dark"] .search-icon:after{background:var(--green)}
+[data-theme="dark"] .launch-card,
+[data-theme="dark"] .launch-card.blue,
+[data-theme="dark"] .launch-card.ink,
+[data-theme="dark"] .launch-card.green,
+[data-theme="dark"] .launch-card.yellow,
+[data-theme="dark"] .launch-card.mint,
+[data-theme="dark"] .launch-card.red,
+[data-theme="dark"] .launch-card.sand,
+[data-theme="dark"] .launch-card.stone,
+[data-theme="dark"] .launch-card.sky{
+  --card-accent:var(--green)!important;
+}
+[data-theme="dark"] .launch-card:hover{
+  background:#111c15;
+  border-color:#41503f;
+  box-shadow:0 18px 40px #0008;
+}
+[data-theme="dark"] .launch-card .tile-icon{opacity:.22}
+[data-theme="dark"] .project-card{
+  background:#0a110d;
+  border:1px solid var(--line);
+}
+[data-theme="dark"] .project-card .section-heading span,
+[data-theme="dark"] .market-item span,
+[data-theme="dark"] .results-topbar span,
+[data-theme="dark"] .results-footer a span{color:var(--green)}
+[data-theme="dark"] .market-item .up{color:var(--green)}
+[data-theme="dark"] .calendar-grid .today{background:var(--green);color:#071008}
+[data-theme="dark"] kbd,
+[data-theme="dark"] .commands code,
+[data-theme="dark"] .link-modal-row input,
+[data-theme="dark"] .watchlist-row input{
+  background:var(--surface-2);
+  border-color:var(--line);
+  color:var(--ink);
+}
+[data-theme="dark"] .results-panel{background:var(--surface);border-color:var(--line)}
+[data-theme="dark"] .results-footer{background:var(--bg)}
+[data-theme="dark"] .results-footer a{background:var(--green);color:#071008}
