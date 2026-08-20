@@ -5,6 +5,7 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 type LinkItem = { id: string; name: string; url: string; key: string; tone: string };
 type SearchResult = { title: string; url: string; description?: string };
 type MarketQuote = { symbol: string; name: string; price: number; change: number; changePercent: number };
+type LinkSettings = { url: string; name: string; key: string };
 
 const links: LinkItem[] = [
   { id: "mail", name: "Mail", url: "https://mail.google.com", key: "M", tone: "coral" },
@@ -24,7 +25,7 @@ const aiLinks = [
   { id: "grok", name: "Grok", url: "https://grok.com" },
 ];
 
-const defaultUrls = Object.fromEntries([...links, ...aiLinks].map((link) => [link.id, link.url]));
+const defaultLinkSettings: Record<string, LinkSettings> = Object.fromEntries([...links, ...aiLinks].map((link) => [link.id, { url: link.url, name: link.name, key: "key" in link ? link.key : "AI" }]));
 
 async function readApiResponse(response: Response) {
   const text = await response.text();
@@ -65,8 +66,8 @@ export default function Home() {
   const [isWatchlistOpen, setIsWatchlistOpen] = useState(false);
   const [isSavingWatchlist, setIsSavingWatchlist] = useState(false);
   const [watchlistMessage, setWatchlistMessage] = useState("");
-  const [urls, setUrls] = useState<Record<string, string>>(defaultUrls);
-  const [draftUrls, setDraftUrls] = useState<Record<string, string>>(defaultUrls);
+  const [linkSettings, setLinkSettings] = useState<Record<string, LinkSettings>>(defaultLinkSettings);
+  const [draftLinkSettings, setDraftLinkSettings] = useState<Record<string, LinkSettings>>(defaultLinkSettings);
   const [isEditingLinks, setIsEditingLinks] = useState(false);
   const [savingLink, setSavingLink] = useState<string | null>(null);
   const [linkMessage, setLinkMessage] = useState("");
@@ -104,11 +105,11 @@ export default function Home() {
     let active = true;
     fetch("/api/links", { cache: "no-store" })
       .then((response) => response.ok ? response.json() : Promise.reject())
-      .then((data: { links: Record<string, string> }) => {
+      .then((data: { links: Record<string, LinkSettings> }) => {
         if (!active) return;
-        const next = { ...defaultUrls, ...data.links };
-        setUrls(next);
-        setDraftUrls(next);
+        const next = { ...defaultLinkSettings, ...data.links };
+        setLinkSettings(next);
+        setDraftLinkSettings(next);
       })
       .catch(() => { if (active) setLinkMessage("Using default links — Turso is unavailable."); });
     return () => { active = false; };
@@ -121,12 +122,13 @@ export default function Home() {
       const response = await fetch("/api/links", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, url: draftUrls[id] }),
+        body: JSON.stringify({ id, ...draftLinkSettings[id] }),
       });
       const data = await readApiResponse(response);
       if (!response.ok) throw new Error(data.error || "Unable to save link");
-      setUrls((current) => ({ ...current, [id]: data.url }));
-      setDraftUrls((current) => ({ ...current, [id]: data.url }));
+      const saved = { url: data.url, name: data.name, key: data.key };
+      setLinkSettings((current) => ({ ...current, [id]: saved }));
+      setDraftLinkSettings((current) => ({ ...current, [id]: saved }));
       setLinkMessage("Saved to Turso.");
     } catch (error) {
       setLinkMessage(error instanceof Error ? error.message : "Unable to save link.");
@@ -262,23 +264,23 @@ export default function Home() {
         <div className="section-heading">
           <h2>Launchpad</h2>
           <div className="link-tools">
-            <button className="edit-links-button" type="button" aria-label="Edit launchpad URLs" title="Edit URLs" onClick={() => { setIsEditingLinks((value) => !value); setDraftUrls(urls); setLinkMessage(""); }}>
+            <button className="edit-links-button" type="button" aria-label="Edit launchpad links" title="Edit links" onClick={() => { setIsEditingLinks((value) => !value); setDraftLinkSettings(linkSettings); setLinkMessage(""); }}>
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4l11-11-4-4L4 16v4Zm13.5-16.5 3 3" /></svg>
             </button>
           </div>
         </div>
         <div className="launch-grid">
           {links.map((item) => (
-            <a className={`launch-card ${item.tone}`} href={urls[item.id]} target="_blank" rel="noopener noreferrer" key={item.id}>
-              <span className="tile-icon" aria-hidden="true">{item.key}</span>
-              <strong>{item.name}</strong>
+            <a className={`launch-card ${item.tone}`} href={linkSettings[item.id].url} target="_blank" rel="noopener noreferrer" key={item.id}>
+              <span className="tile-icon" aria-hidden="true">{linkSettings[item.id].key}</span>
+              <strong>{linkSettings[item.id].name}</strong>
             </a>
           ))}
           <article className="launch-card mint ai-card">
             <span className="tile-icon" aria-hidden="true">AI</span>
             <strong>AI</strong>
             <div className="ai-links">
-              {aiLinks.map((item) => <a href={urls[item.id]} target="_blank" rel="noopener noreferrer" key={item.id}>{item.name}</a>)}
+              {aiLinks.map((item) => <a href={linkSettings[item.id].url} target="_blank" rel="noopener noreferrer" key={item.id}>{linkSettings[item.id].name}</a>)}
             </div>
           </article>
         </div>
@@ -362,10 +364,14 @@ export default function Home() {
             <div className="link-modal-body">
               {[...links, ...aiLinks].map((item) => (
                 <div className="link-modal-row" key={item.id}>
-                  <label htmlFor={`url-${item.id}`}>{item.name}</label>
-                  <input id={`url-${item.id}`} type="url" value={draftUrls[item.id]} onChange={(event) => setDraftUrls((current) => ({ ...current, [item.id]: event.target.value }))} />
-                  <button type="button" disabled={savingLink === item.id || draftUrls[item.id] === urls[item.id]} onClick={() => saveLink(item.id)}>
-                    {savingLink === item.id ? "Saving…" : draftUrls[item.id] === urls[item.id] ? "Saved" : "Save"}
+                  <label htmlFor={`name-${item.id}`}>{linkSettings[item.id].name}</label>
+                  <div className={`link-fields ${"key" in item ? "" : "ai-fields"}`}>
+                    <input id={`name-${item.id}`} aria-label={`${item.name} title`} className="link-name-input" value={draftLinkSettings[item.id].name} maxLength={40} placeholder="Title" onChange={(event) => setDraftLinkSettings((current) => ({ ...current, [item.id]: { ...current[item.id], name: event.target.value } }))} />
+                    {"key" in item && <input aria-label={`${item.name} letter`} className="link-key-input" value={draftLinkSettings[item.id].key} maxLength={5} placeholder="Icon" onChange={(event) => setDraftLinkSettings((current) => ({ ...current, [item.id]: { ...current[item.id], key: event.target.value.toUpperCase() } }))} />}
+                    <input id={`url-${item.id}`} aria-label={`${item.name} URL`} className="link-url-input" type="url" value={draftLinkSettings[item.id].url} placeholder="https://" onChange={(event) => setDraftLinkSettings((current) => ({ ...current, [item.id]: { ...current[item.id], url: event.target.value } }))} />
+                  </div>
+                  <button type="button" disabled={savingLink === item.id || JSON.stringify(draftLinkSettings[item.id]) === JSON.stringify(linkSettings[item.id])} onClick={() => saveLink(item.id)}>
+                    {savingLink === item.id ? "Saving…" : JSON.stringify(draftLinkSettings[item.id]) === JSON.stringify(linkSettings[item.id]) ? "Saved" : "Save"}
                   </button>
                 </div>
               ))}
