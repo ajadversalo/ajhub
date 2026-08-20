@@ -424,16 +424,25 @@ html,body,button,input,textarea,select{font-family:var(--font-geist-sans,Arial),
 
 /* Authentication */
 .signout-form{margin:0}
-.signout-form button{border:0;background:transparent;color:var(--muted);padding:5px 0;cursor:pointer;font:600 9px/1 var(--font-geist-mono),monospace;text-transform:uppercase;letter-spacing:.11em}
-.signout-form button:hover,.signout-form button:focus-visible{color:var(--ink)}
-.login-shell{min-height:100vh;display:grid;place-items:center;padding:24px}
-.login-panel{width:min(100%,420px);min-height:420px;border:1px solid var(--line);padding:32px;display:flex;flex-direction:column;justify-content:space-between;background:var(--surface)}
-.login-panel .brand{align-self:flex-start}
-.login-panel h1{font-size:52px;line-height:1;margin:0}
-.login-copy{max-width:320px;margin:18px 0 0;color:var(--muted);font-size:15px;line-height:1.5}
-.google-signin{height:50px;border:1px solid var(--ink);display:flex;align-items:center;justify-content:center;gap:12px;font-size:14px;font-weight:600}
-.google-signin:hover,.google-signin:focus-visible{background:var(--ink);color:var(--bg)}
-.google-signin span{width:22px;height:22px;border:1px solid currentColor;display:grid;place-items:center;font-size:11px}
-.auth-notice,.auth-error{margin:0;border-left:3px solid var(--green);padding:12px 14px;background:var(--surface-2);color:var(--muted);font-size:13px;line-height:1.4}
-.auth-error{margin-top:12px;color:var(--ink)}
-@media(max-width:500px){.login-panel{min-height:390px;padding:24px}.login-panel h1{font-size:44px}.signout-form button{font-size:0}.signout-form button:after{content:"EXIT";font-size:9px}}
+.signout-form button,.auth-action{border:0;background:transparent;color:var(--muted);padding:5px 0;cursor:pointer;font:600 9px/1 var(--font-geist-mono),monospace;text-transform:uppercase;letter-spacing:.11em;white-space:nowrap}
+.signout-form button:hover,.signout-form button:focus-visible,.auth-action:hover,.auth-action:focus-visible{color:var(--ink)}
+.public-home{min-height:100vh}
+.public-auth-error{width:min(100%,440px);margin:32px auto 0;border-left:3px solid var(--green);padding:12px 14px;background:var(--surface-2);color:var(--muted);font-size:13px;line-height:1.4}
+@media(max-width:500px){.signout-form button{font-size:0}.signout-form button:after{content:"EXIT";font-size:9px}}
+
+/* Compact weather and local-time cluster */
+.hero h1{display:block}
+.hero-meta{margin-left:auto;display:flex;align-items:center;justify-content:flex-end;gap:18px;flex:0 0 auto}
+.weather-summary{display:flex;align-items:center;gap:9px;padding-right:18px;border-right:1px solid var(--line);color:var(--ink)}
+.weather-summary .forecast-icon{width:24px;height:24px}
+.weather-copy{display:grid;gap:3px;text-align:left}
+.weather-copy strong{font:550 17px/1 var(--font-geist-mono,Consolas),Consolas,monospace;letter-spacing:0}
+.weather-copy small{max-width:130px;color:var(--muted);font:600 8px/1 var(--font-geist-mono,Consolas),Consolas,monospace;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hero-meta time{margin:0;text-align:right}
+@media(max-width:500px){
+  .hero-meta{gap:10px;min-width:0}
+  .weather-summary{gap:6px;padding-right:10px}
+  .weather-summary .forecast-icon{width:20px;height:20px}
+  .weather-copy strong{font-size:14px}
+  .weather-copy small{display:none}
+}

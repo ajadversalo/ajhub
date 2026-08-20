@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import { SiteHeader } from "./SiteHeader";
 
 type LinkItem = { id: string; name: string; url: string; key: string; tone: string };
 type SearchResult = { title: string; url: string; description?: string };
@@ -69,7 +69,6 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
   const [searchedQuery, setSearchedQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
-  const [theme, setTheme] = useState<"light" | "dark">("light");
   const [markets, setMarkets] = useState<MarketQuote[]>([]);
   const [marketStatus, setMarketStatus] = useState<"loading" | "ready" | "error">("loading");
   const [weather, setWeather] = useState<Weather | null>(null);
@@ -101,14 +100,8 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
   }, []);
 
   useEffect(() => {
-    const savedTheme = window.localStorage.getItem("ajhub-theme");
-    const initialTheme = savedTheme === "dark" || savedTheme === "light"
-      ? savedTheme
-      : window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-    // Theme and clock values are client-only and must be set after hydration.
+    // Clock values are client-only and must be set after hydration.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setTheme(initialTheme);
-    document.documentElement.dataset.theme = initialTheme;
     setTime(new Date());
     const timer = window.setInterval(() => setTime(new Date()), 1000);
     const onKey = (event: KeyboardEvent) => {
@@ -214,13 +207,6 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
     } finally { setIsSavingWatchlist(false); }
   }
 
-  function toggleTheme() {
-    const nextTheme = theme === "light" ? "dark" : "light";
-    setTheme(nextTheme);
-    document.documentElement.dataset.theme = nextTheme;
-    window.localStorage.setItem("ajhub-theme", nextTheme);
-  }
-
   async function search(event: FormEvent) {
     event.preventDefault();
     const value = query.trim();
@@ -255,29 +241,24 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
       <div className="ambient one" />
       <div className="ambient two" />
 
-      <header className="topbar">
-        <Link className="brand" href="/" aria-label="AJ's Hub home">
-          <span>AJ&apos;S</span>HUB
-        </Link>
-        <div className="date">
-          {time?.toLocaleDateString("en-CA", { weekday: "long", month: "long", day: "numeric" })}
-        </div>
-        <button className="theme-toggle" type="button" onClick={toggleTheme} aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}>
-          <span className="theme-track"><i /></span>
-          <b className="theme-icon" aria-hidden="true">{theme === "light" ? "☀" : "☾"}</b>
-        </button>
-        <form action="/api/auth/logout" method="post" className="signout-form">
-          <button type="submit" title={`Signed in as ${user.email}`}>Sign out</button>
-        </form>
-      </header>
+      <SiteHeader user={user} />
 
       <section className="hero">
         <h1>
-          {weather && <span className="forecast-icon" aria-hidden="true"><WeatherIcon weather={weather} /></span>}
           {time ? (time.getHours() < 12 ? "Good morning" : time.getHours() < 18 ? "Good afternoon" : "Good evening") : "Good day"}, AJ
-          {weather && <span className="weather-reading" title={`${weather.label}, feels like ${weather.apparentTemperature}°C in ${weather.location}`}>{weather.temperature}°</span>}
         </h1>
-        <time>{time?.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) ?? "--:--"}</time>
+        <div className="hero-meta">
+          {weather && (
+            <div className="weather-summary" title={`${weather.label}, feels like ${weather.apparentTemperature}°C in ${weather.location}`}>
+              <span className="forecast-icon" aria-hidden="true"><WeatherIcon weather={weather} /></span>
+              <span className="weather-copy">
+                <strong>{weather.temperature}°</strong>
+                <small>{weather.label}</small>
+              </span>
+            </div>
+          )}
+          <time>{time?.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) ?? "--:--"}</time>
+        </div>
       </section>
 
       <form className="search" onSubmit={search}>
