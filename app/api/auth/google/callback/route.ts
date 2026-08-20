@@ -31,7 +31,7 @@ export async function GET(request: Request) {
     if (!tokens.id_token) throw new Error("Google did not return an ID token");
     const user = await verifyGoogleIdToken(tokens.id_token, nonce, config.clientId);
     if (!allowedEmail(user.email)) return loginError(request, "denied");
-    const response = Response.redirect(new URL("/", request.url));
+    const response = new Response(null, { status: 302, headers: { Location: new URL("/", request.url).toString() } });
     response.headers.append("Set-Cookie", sessionCookie(await createSession(user), request.url));
     for (const name of ["google_oauth_state", "google_oauth_nonce", "google_oauth_verifier"]) {
       response.headers.append("Set-Cookie", `${name}=; Path=/api/auth; HttpOnly; SameSite=Lax; Max-Age=0`);

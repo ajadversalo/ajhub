@@ -27,7 +27,7 @@ export async function GET(request: Request) {
     prompt: "select_account",
   }).toString();
 
-  const response = Response.redirect(authorization);
+  const response = new Response(null, { status: 302, headers: { Location: authorization.toString() } });
   const secure = requestUrl.protocol === "https:";
   response.headers.append("Set-Cookie", oauthCookie("google_oauth_state", state, secure));
   response.headers.append("Set-Cookie", oauthCookie("google_oauth_nonce", nonce, secure));
