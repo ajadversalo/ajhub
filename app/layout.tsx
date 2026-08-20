@@ -15,20 +15,20 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://ajhub.ca"),
-  title: "AJ Hub — Personal Launchpad",
+  title: "AJ Hub — Personal Command Center",
   description: "AJ's quiet corner of the internet: a personal launchpad for the usual places.",
   manifest: "/manifest.webmanifest",
   applicationName: "AJ Hub",
   appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "AJ Hub" },
   formatDetection: { telephone: false },
   openGraph: {
-    title: "AJ Hub — Personal Launchpad",
+    title: "AJ Hub — Personal Command Center",
     description: "AJ's quiet corner of the internet.",
     images: [{ url: "/og.png", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "AJ Hub — Personal Launchpad",
+    title: "AJ Hub — Personal Command Center",
     description: "AJ's quiet corner of the internet.",
     images: ["/og.png"],
   },

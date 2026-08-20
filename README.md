@@ -18,6 +18,19 @@ npm run build
 
 This starter does not use `wrangler.jsonc`.
 
+### Turso-backed launchpad links
+
+The launchpad URL editor stores its values in Turso. Configure these server-side
+environment variables locally and in the deployed Sites project:
+
+```bash
+TURSO_DATABASE_URL=libsql://your-database.turso.io
+TURSO_AUTH_TOKEN=your-database-token
+```
+
+The `/api/links` endpoint creates and seeds the `launchpad_links` table on its
+first successful request, so no separate migration is required.
+
 ## Included Shape
 
 - edit site code under `app/`
