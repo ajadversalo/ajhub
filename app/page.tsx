@@ -26,6 +26,12 @@ const aiLinks = [
 
 const defaultUrls = Object.fromEntries([...links, ...aiLinks].map((link) => [link.id, link.url]));
 
+async function readApiResponse(response: Response) {
+  const text = await response.text();
+  try { return text ? JSON.parse(text) : {}; }
+  catch { throw new Error(response.ok ? "The server returned an invalid response" : `Server error (${response.status})`); }
+}
+
 const searches: Record<string, string> = {
   g: "https://www.google.com/search?q=",
   gh: "https://github.com/search?q=",
@@ -117,7 +123,7 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, url: draftUrls[id] }),
       });
-      const data = await response.json();
+      const data = await readApiResponse(response);
       if (!response.ok) throw new Error(data.error || "Unable to save link");
       setUrls((current) => ({ ...current, [id]: data.url }));
       setDraftUrls((current) => ({ ...current, [id]: data.url }));
@@ -160,7 +166,7 @@ export default function Home() {
     setWatchlistMessage("");
     try {
       const response = await fetch("/api/watchlist", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ symbols: draftWatchlist }) });
-      const data = await response.json();
+      const data = await readApiResponse(response);
       if (!response.ok) throw new Error(data.error || "Unable to save watchlist");
       setWatchlist(data.symbols);
       setDraftWatchlist(data.symbols);
@@ -168,7 +174,7 @@ export default function Home() {
       setMarketStatus("loading");
       const marketResponse = await fetch("/api/markets", { cache: "no-store" });
       if (!marketResponse.ok) throw new Error("Saved, but quotes could not be refreshed");
-      const marketData = await marketResponse.json();
+      const marketData = await readApiResponse(marketResponse);
       setMarkets(marketData.quotes);
       setMarketStatus("ready");
     } catch (error) {
@@ -191,7 +197,7 @@ export default function Home() {
     const [prefix, ...rest] = value.split(" ");
     const engine = searches[prefix.toLowerCase()];
     if (engine) {
-      window.location.href = engine + encodeURIComponent(rest.join(" "));
+      window.open(engine + encodeURIComponent(rest.join(" ")), "_blank", "noopener,noreferrer");
       return;
     }
     setSearchedQuery(value);
@@ -256,7 +262,6 @@ export default function Home() {
         <div className="section-heading">
           <h2>Launchpad</h2>
           <div className="link-tools">
-            {linkMessage && <small role="status">{linkMessage}</small>}
             <button className="edit-links-button" type="button" aria-label="Edit launchpad URLs" title="Edit URLs" onClick={() => { setIsEditingLinks((value) => !value); setDraftUrls(urls); setLinkMessage(""); }}>
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4l11-11-4-4L4 16v4Zm13.5-16.5 3 3" /></svg>
             </button>
@@ -264,7 +269,7 @@ export default function Home() {
         </div>
         <div className="launch-grid">
           {links.map((item) => (
-            <a className={`launch-card ${item.tone}`} href={urls[item.id]} key={item.id}>
+            <a className={`launch-card ${item.tone}`} href={urls[item.id]} target="_blank" rel="noopener noreferrer" key={item.id}>
               <span className="tile-icon" aria-hidden="true">{item.key}</span>
               <strong>{item.name}</strong>
             </a>
@@ -334,7 +339,7 @@ export default function Home() {
         <div className="results-body">
           {isSearching && <div className="results-loading"><i /><i /><i /><span>Searching the web…</span></div>}
           {!isSearching && results.length > 0 && results.map((result) => (
-            <a className="result-item" href={result.url} key={result.url}>
+            <a className="result-item" href={result.url} target="_blank" rel="noopener noreferrer" key={result.url}>
               <span>{new URL(result.url).hostname.replace("www.", "")}</span><h3>{result.title}</h3>
               {result.description && <p>{result.description}</p>}<b>↗</b>
             </a>
@@ -342,7 +347,7 @@ export default function Home() {
           {!isSearching && results.length === 0 && <div className="empty-results"><span>⌕</span><h3>No instant answer found</h3><p>Try the full web search below for more results.</p></div>}
         </div>
         <div className="results-footer">
-          <a href={`https://www.google.com/search?q=${encodeURIComponent(searchedQuery)}`}>Open full Google results <span>↗</span></a>
+          <a href={`https://www.google.com/search?q=${encodeURIComponent(searchedQuery)}`} target="_blank" rel="noopener noreferrer">Open full Google results <span>↗</span></a>
           <small>Tip: press Esc to close</small>
         </div>
       </aside>
