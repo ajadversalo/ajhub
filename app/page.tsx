@@ -6,6 +6,7 @@ type LinkItem = { id: string; name: string; url: string; key: string; tone: stri
 type SearchResult = { title: string; url: string; description?: string };
 type MarketQuote = { symbol: string; name: string; price: number; change: number; changePercent: number };
 type LinkSettings = { url: string; name: string; key: string };
+type Weather = { temperature: number; apparentTemperature: number; code: number; isDay: boolean; label: string; location: string };
 
 const links: LinkItem[] = [
   { id: "mail", name: "Mail", url: "https://mail.google.com", key: "M", tone: "coral" },
@@ -51,6 +52,15 @@ function getCalendarDays(date: Date) {
   });
 }
 
+function WeatherIcon({ weather }: { weather: Weather }) {
+  if (weather.code >= 95) return <svg viewBox="0 0 24 24"><path d="M7 16a4 4 0 1 1 1-7.9A5.5 5.5 0 0 1 18.5 10 3 3 0 0 1 18 16H7Z" /><path d="m13 14-2 4h3l-2 4" /></svg>;
+  if (weather.code >= 71 && weather.code <= 86) return <svg viewBox="0 0 24 24"><path d="M7 15a4 4 0 1 1 1-7.9A5.5 5.5 0 0 1 18.5 9 3 3 0 0 1 18 15H7Z" /><path d="M8 19h.01M12 18h.01M16 19h.01" /></svg>;
+  if (weather.code >= 51 && weather.code <= 82) return <svg viewBox="0 0 24 24"><path d="M7 15a4 4 0 1 1 1-7.9A5.5 5.5 0 0 1 18.5 9 3 3 0 0 1 18 15H7Z" /><path d="m8 18-1 2M13 18l-1 2M18 18l-1 2" /></svg>;
+  if (weather.code >= 2 && weather.code <= 48) return <svg viewBox="0 0 24 24"><path d="M7 17a4 4 0 1 1 1-7.9A5.5 5.5 0 0 1 18.5 11 3 3 0 0 1 18 17H7Z" /></svg>;
+  if (!weather.isDay) return <svg viewBox="0 0 24 24"><path d="M20 15.2A8.5 8.5 0 0 1 8.8 4a8.5 8.5 0 1 0 11.2 11.2Z" /></svg>;
+  return <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></svg>;
+}
+
 export default function Home() {
   const [time, setTime] = useState<Date | null>(null);
   const [query, setQuery] = useState("");
@@ -61,6 +71,7 @@ export default function Home() {
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const [markets, setMarkets] = useState<MarketQuote[]>([]);
   const [marketStatus, setMarketStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [weather, setWeather] = useState<Weather | null>(null);
   const [watchlist, setWatchlist] = useState(["^GSPC", "^DJI", "^IXIC", "^RUT"]);
   const [draftWatchlist, setDraftWatchlist] = useState(["^GSPC", "^DJI", "^IXIC", "^RUT"]);
   const [isWatchlistOpen, setIsWatchlistOpen] = useState(false);
@@ -72,6 +83,21 @@ export default function Home() {
   const [savingLink, setSavingLink] = useState<string | null>(null);
   const [linkMessage, setLinkMessage] = useState("");
   const searchRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    let active = true;
+    async function loadWeather() {
+      try {
+        const response = await fetch("/api/weather");
+        if (!response.ok) throw new Error("Weather unavailable");
+        const data = await response.json();
+        if (active) setWeather(data);
+      } catch { if (active) setWeather(null); }
+    }
+    loadWeather();
+    const refresh = window.setInterval(loadWeather, 900000);
+    return () => { active = false; window.clearInterval(refresh); };
+  }, []);
 
   useEffect(() => {
     const savedTheme = window.localStorage.getItem("ajhub-theme");
@@ -242,16 +268,9 @@ export default function Home() {
 
       <section className="hero">
         <h1>
-          <span className="forecast-icon" aria-hidden="true">
-            {!time || time.getHours() < 12 ? (
-              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></svg>
-            ) : time.getHours() < 18 ? (
-              <svg viewBox="0 0 24 24"><path d="M8.2 15.8H6.5a3.5 3.5 0 1 1 .8-6.9A5 5 0 0 1 17 10.5h.5a2.5 2.5 0 0 1 0 5H8.2Z" /><path d="M8 4V2M3.8 5.8 2.4 4.4M12.2 5.8l1.4-1.4" /></svg>
-            ) : (
-              <svg viewBox="0 0 24 24"><path d="M20 15.2A8.5 8.5 0 0 1 8.8 4a8.5 8.5 0 1 0 11.2 11.2Z" /></svg>
-            )}
-          </span>
+          {weather && <span className="forecast-icon" aria-hidden="true"><WeatherIcon weather={weather} /></span>}
           {time ? (time.getHours() < 12 ? "Good morning" : time.getHours() < 18 ? "Good afternoon" : "Good evening") : "Good day"}, AJ
+          {weather && <span className="weather-reading" title={`${weather.label}, feels like ${weather.apparentTemperature}°C in ${weather.location}`}>{weather.temperature}°</span>}
         </h1>
         <time>{time?.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) ?? "--:--"}</time>
       </section>

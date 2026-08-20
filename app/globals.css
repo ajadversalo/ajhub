@@ -210,10 +210,10 @@ main{width:100%;max-width:none;padding-left:clamp(20px,3vw,56px);padding-right:c
 [data-theme="dark"] .launch-card .tile-icon{opacity:.28}
 
 /* Oversized card monograms */
-.launch-card .tile-icon{top:-18%;right:-8%;font-size:clamp(81px,6.75vw,134px);font-weight:620;line-height:.9}
+.launch-card .tile-icon{top:-18%;right:-8%;font-size:clamp(61px,5.06vw,101px);font-weight:620;line-height:.9}
 .launch-card:hover .tile-icon{transform:translate(-14px,14px) rotate(-4deg) scale(1.1)}
-@media(max-width:1100px){.launch-card .tile-icon{font-size:clamp(89px,12.75vw,143px)}}
-@media(max-width:600px){.launch-card .tile-icon{font-size:28.5vw;top:-14%;right:-7%}}
+@media(max-width:1100px){.launch-card .tile-icon{font-size:clamp(67px,9.56vw,107px)}}
+@media(max-width:600px){.launch-card .tile-icon{font-size:21.4vw;top:-14%;right:-7%}}
 
 /* Monochrome card accents */
 .launch-card,.launch-card.blue,.launch-card.ink,.launch-card.green,.launch-card.yellow,.launch-card.mint,.launch-card.red,.launch-card.sand,.launch-card.stone,.launch-card.sky{--card-accent:#777a77}
@@ -333,6 +333,7 @@ html,body,button,input,textarea,select{font-family:var(--font-geist-sans,Arial),
 .hero h1{display:flex;align-items:center;gap:12px}
 .forecast-icon{flex:0 0 auto;width:28px;height:28px;display:grid;place-items:center;color:var(--green)}
 .forecast-icon svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.weather-reading{color:var(--muted);font:500 .55em/1 var(--font-geist-mono,Consolas),Consolas,monospace;letter-spacing:-.04em}
 @media(max-width:500px){.hero h1{gap:9px}.forecast-icon{width:23px;height:23px}}
 .date,.status,.eyebrow,.number,.section-heading span,.theme-toggle b,
 .launch-card strong:before,.ai-links a,.market-item span,.market-item b,
@@ -419,3 +420,11 @@ html,body,button,input,textarea,select{font-family:var(--font-geist-sans,Arial),
 [data-theme="dark"] .results-panel{background:var(--surface);border-color:var(--line)}
 [data-theme="dark"] .results-footer{background:var(--bg)}
 [data-theme="dark"] .results-footer a{background:var(--green);color:#071008}
+
+/* Restore each launch tile's individual accent during hover/focus. */
+.launch-card:hover,
+.launch-card:focus-visible,
+[data-theme="dark"] .launch-card:hover,
+[data-theme="dark"] .launch-card:focus-visible{
+  --card-accent:var(--hover-accent)!important;
+}
