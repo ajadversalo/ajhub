@@ -31,6 +31,30 @@ TURSO_AUTH_TOKEN=your-database-token
 The `/api/links` endpoint creates and seeds the `launchpad_links` table on its
 first successful request, so no separate migration is required.
 
+## Google authentication
+
+The dashboard and its personal settings APIs require a Google session. Create a
+Google OAuth 2.0 Web application and configure this exact authorized redirect
+URI for production:
+
+```text
+https://ajhub.ca/api/auth/google/callback
+```
+
+Configure these server-side environment variables locally and in the deployed
+Sites project:
+
+```bash
+GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-client-secret
+GOOGLE_ALLOWED_EMAILS=you@example.com
+AUTH_SECRET=a-long-random-secret-at-least-32-bytes
+```
+
+Separate multiple allowed emails with commas. Access is denied when the
+allowlist is empty. For a deployment whose public origin cannot be inferred
+from the request, set `GOOGLE_REDIRECT_URI` to the full callback URL above.
+
 ## Included Shape
 
 - edit site code under `app/`

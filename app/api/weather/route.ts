@@ -1,3 +1,5 @@
+import { getRequestUser } from "@/app/auth";
+
 const descriptions: Record<number, string> = {
   0: "Clear", 1: "Mostly clear", 2: "Partly cloudy", 3: "Overcast", 45: "Foggy", 48: "Icy fog",
   51: "Light drizzle", 53: "Drizzle", 55: "Heavy drizzle", 56: "Freezing drizzle", 57: "Heavy freezing drizzle",
@@ -7,7 +9,8 @@ const descriptions: Record<number, string> = {
   96: "Thunderstorm with hail", 99: "Severe thunderstorm with hail",
 };
 
-export async function GET() {
+export async function GET(request: Request) {
+  if (!await getRequestUser(request)) return Response.json({ error: "Unauthorized" }, { status: 401 });
   try {
     const url = "https://api.open-meteo.com/v1/forecast?latitude=49.2827&longitude=-123.1207&current=temperature_2m,apparent_temperature,weather_code,is_day&timezone=America%2FVancouver";
     const response = await fetch(url, { next: { revalidate: 600 } });

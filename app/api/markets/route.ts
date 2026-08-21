@@ -1,4 +1,5 @@
 import { defaultWatchlist, getWatchlist } from "@/db/watchlist";
+import { getRequestUser } from "@/app/auth";
 
 type YahooMeta = { regularMarketPrice?: number; chartPreviousClose?: number; previousClose?: number; shortName?: string; longName?: string };
 
@@ -23,7 +24,8 @@ async function fetchQuote(symbol: string) {
   throw new Error(`Quote unavailable for ${symbol} (${lastStatus || "network error"})`);
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  if (!await getRequestUser(request)) return Response.json({ error: "Unauthorized" }, { status: 401 });
   try {
     let symbols = defaultWatchlist;
     try { symbols = await getWatchlist(); } catch (error) { console.error("Using default watchlist", error); }
