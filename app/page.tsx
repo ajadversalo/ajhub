@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useRef, useState } from "react";
+import { siGithub, siGooglegemini, siGooglemaps, siNotion } from "simple-icons";
 
 type LinkItem = { id: string; name: string; url: string; key: string; tone: string };
 type SearchResult = { title: string; url: string; description?: string };
@@ -21,12 +22,24 @@ const links: LinkItem[] = [
 ];
 
 const aiLinks = [
-  { id: "chatgpt", name: "ChatGPT", url: "https://chatgpt.com" },
-  { id: "gemini", name: "Gemini", url: "https://gemini.google.com" },
-  { id: "grok", name: "Grok", url: "https://grok.com" },
+  { id: "chatgpt", name: "ChatGPT", url: "https://chatgpt.com", tone: "mint" },
+  { id: "gemini", name: "Gemini", url: "https://gemini.google.com", tone: "blue" },
+  { id: "grok", name: "Grok", url: "https://grok.com", tone: "ink" },
 ];
 
-const defaultLinkSettings: Record<string, LinkSettings> = Object.fromEntries([...links, ...aiLinks].map((link) => [link.id, { url: link.url, name: link.name, key: "key" in link ? link.key : "AI" }]));
+const allLinkItems = [...links, ...aiLinks];
+const defaultLinkOrder = allLinkItems.map((link) => link.id);
+const defaultLinkSettings: Record<string, LinkSettings> = Object.fromEntries(allLinkItems.map((link) => [link.id, { url: link.url, name: link.name, key: "key" in link ? link.key : "AI" }]));
+
+const azureIcon = {
+  hex: "0078D4",
+  path: "M22.379 23.343a1.62 1.62 0 0 0 1.536-2.14v.002L17.35 1.76A1.62 1.62 0 0 0 15.816.657H8.184A1.62 1.62 0 0 0 6.65 1.76L.086 21.204a1.62 1.62 0 0 0 1.536 2.139h4.741a1.62 1.62 0 0 0 1.535-1.103l.977-2.892 4.947 3.675c.28.208.618.32.966.32m-3.084-12.531 3.624 10.739a.54.54 0 0 1-.51.713v-.001h-.03a.54.54 0 0 1-.322-.106l-9.287-6.9h4.853m6.313 7.006c.116-.326.13-.694.007-1.058L9.79 1.76a1.722 1.722 0 0 0-.007-.02h6.034a.54.54 0 0 1 .512.366l6.562 19.445a.54.54 0 0 1-.338.684",
+};
+
+const grokIcon = {
+  hex: "000000",
+  path: "M9.27 15.29l7.978-5.897c.391-.29.95-.177 1.137.272.98 2.369.542 5.215-1.41 7.169-1.951 1.954-4.667 2.382-7.149 1.406l-2.711 1.257c3.889 2.661 8.611 2.003 11.562-.953 2.341-2.344 3.066-5.539 2.388-8.42l.006.007c-.983-4.232.242-5.924 2.75-9.383.06-.082.12-.164.179-.248l-3.301 3.305v-.01L9.267 15.292M7.623 16.723c-2.792-2.67-2.31-6.801.071-9.184 1.761-1.763 4.647-2.483 7.166-1.425l2.705-1.25a7.808 7.808 0 0 0-1.829-1A8.975 8.975 0 005.984 5.83c-2.533 2.536-3.33 6.436-1.962 9.764 1.022 2.487-.653 4.246-2.34 6.022-.599.63-1.199 1.259-1.682 1.925l7.62-6.815",
+};
 
 async function readApiResponse(response: Response) {
   const text = await response.text();
@@ -61,6 +74,33 @@ function WeatherIcon({ weather }: { weather: Weather }) {
   return <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></svg>;
 }
 
+function SiteMark({ url, monogram }: { url: string; monogram: string }) {
+  const [logoAttempt, setLogoAttempt] = useState(0);
+  const hostname = new URL(url).hostname.replace(/^www\./, "");
+  const brandIcon = hostname === "github.com" ? siGithub
+    : hostname === "gemini.google.com" ? siGooglegemini
+    : hostname === "maps.google.com" ? siGooglemaps
+    : hostname === "notion.so" ? siNotion
+    : hostname === "portal.azure.com" ? azureIcon
+    : hostname === "grok.com" ? grokIcon
+    : null;
+  const origin = new URL(url).origin;
+  const logoUrls = ["/apple-touch-icon.png", "/icon-192.png", "/favicon.ico"].map((path) => new URL(path, origin).toString());
+  const hasLogo = Boolean(brandIcon) || logoAttempt < logoUrls.length;
+
+  return (
+    <span className={`tile-icon${hasLogo ? " has-logo" : ""}`} aria-hidden="true">
+      {brandIcon
+        ? <svg className={brandIcon.hex === "000000" || brandIcon.hex === "181717" ? "brand-logo neutral" : "brand-logo"} viewBox="0 0 24 24" style={{ color: `#${brandIcon.hex}` }}><path fill="currentColor" d={brandIcon.path} /></svg>
+        : hasLogo
+        // The source is dynamic and tiny; Next image optimization would add overhead here.
+        // eslint-disable-next-line @next/next/no-img-element
+        ? <img src={logoUrls[logoAttempt]} alt="" onError={() => setLogoAttempt((attempt) => attempt + 1)} />
+        : monogram}
+    </span>
+  );
+}
+
 export default function Home() {
   const [time, setTime] = useState<Date | null>(null);
   const [query, setQuery] = useState("");
@@ -81,6 +121,10 @@ export default function Home() {
   const [draftLinkSettings, setDraftLinkSettings] = useState<Record<string, LinkSettings>>(defaultLinkSettings);
   const [isEditingLinks, setIsEditingLinks] = useState(false);
   const [savingLink, setSavingLink] = useState<string | null>(null);
+  const [deletingLink, setDeletingLink] = useState<string | null>(null);
+  const [hiddenLinkIds, setHiddenLinkIds] = useState<string[]>([]);
+  const [linkOrder, setLinkOrder] = useState(defaultLinkOrder);
+  const [isReorderingLinks, setIsReorderingLinks] = useState(false);
   const [linkMessage, setLinkMessage] = useState("");
   const searchRef = useRef<HTMLInputElement>(null);
 
@@ -131,11 +175,13 @@ export default function Home() {
     let active = true;
     fetch("/api/links", { cache: "no-store" })
       .then((response) => response.ok ? response.json() : Promise.reject())
-      .then((data: { links: Record<string, LinkSettings> }) => {
+      .then((data: { links: Record<string, LinkSettings>; hiddenIds?: string[]; orderIds?: string[] }) => {
         if (!active) return;
         const next = { ...defaultLinkSettings, ...data.links };
         setLinkSettings(next);
         setDraftLinkSettings(next);
+        setHiddenLinkIds(data.hiddenIds ?? []);
+        if (data.orderIds?.length === defaultLinkOrder.length) setLinkOrder(data.orderIds);
       })
       .catch(() => { if (active) setLinkMessage("Using default links — Turso is unavailable."); });
     return () => { active = false; };
@@ -155,11 +201,63 @@ export default function Home() {
       const saved = { url: data.url, name: data.name, key: data.key };
       setLinkSettings((current) => ({ ...current, [id]: saved }));
       setDraftLinkSettings((current) => ({ ...current, [id]: saved }));
+      setHiddenLinkIds((current) => current.filter((linkId) => linkId !== id));
       setLinkMessage("Saved to Turso.");
     } catch (error) {
       setLinkMessage(error instanceof Error ? error.message : "Unable to save link.");
     } finally {
       setSavingLink(null);
+    }
+  }
+
+  async function deleteLink(id: string) {
+    if (!window.confirm(`Delete ${linkSettings[id].name} from the launchpad?`)) return;
+    setDeletingLink(id);
+    setLinkMessage("");
+    try {
+      const response = await fetch("/api/links", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      const data = await readApiResponse(response);
+      if (!response.ok) throw new Error(data.error || "Unable to delete link");
+      setHiddenLinkIds((current) => [...new Set([...current, id])]);
+      setLinkMessage(`${linkSettings[id].name} removed.`);
+    } catch (error) {
+      setLinkMessage(error instanceof Error ? error.message : "Unable to delete link.");
+    } finally {
+      setDeletingLink(null);
+    }
+  }
+
+  async function moveLink(id: string, direction: -1 | 1) {
+    const visibleIds = linkOrder.filter((linkId) => !hiddenLinkIds.includes(linkId));
+    const visibleIndex = visibleIds.indexOf(id);
+    const neighborId = visibleIds[visibleIndex + direction];
+    if (!neighborId) return;
+    const previousOrder = linkOrder;
+    const nextOrder = [...linkOrder];
+    const currentIndex = nextOrder.indexOf(id);
+    const neighborIndex = nextOrder.indexOf(neighborId);
+    [nextOrder[currentIndex], nextOrder[neighborIndex]] = [nextOrder[neighborIndex], nextOrder[currentIndex]];
+    setLinkOrder(nextOrder);
+    setIsReorderingLinks(true);
+    setLinkMessage("");
+    try {
+      const response = await fetch("/api/links", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: nextOrder }),
+      });
+      const data = await readApiResponse(response);
+      if (!response.ok) throw new Error(data.error || "Unable to reorder cards");
+      setLinkMessage("Card order saved.");
+    } catch (error) {
+      setLinkOrder(previousOrder);
+      setLinkMessage(error instanceof Error ? error.message : "Unable to reorder cards.");
+    } finally {
+      setIsReorderingLinks(false);
     }
   }
 
@@ -298,19 +396,12 @@ export default function Home() {
           </div>
         </div>
         <div className="launch-grid">
-          {links.map((item) => (
+          {allLinkItems.filter((item) => !hiddenLinkIds.includes(item.id)).sort((a, b) => linkOrder.indexOf(a.id) - linkOrder.indexOf(b.id)).map((item) => (
             <a className={`launch-card ${item.tone}`} href={linkSettings[item.id].url} target="_blank" rel="noopener noreferrer" key={item.id}>
-              <span className="tile-icon" aria-hidden="true">{linkSettings[item.id].key}</span>
+              <SiteMark key={linkSettings[item.id].url} url={linkSettings[item.id].url} monogram={linkSettings[item.id].key} />
               <strong>{linkSettings[item.id].name}</strong>
             </a>
           ))}
-          <article className="launch-card mint ai-card">
-            <span className="tile-icon" aria-hidden="true">AI</span>
-            <strong>AI</strong>
-            <div className="ai-links">
-              {aiLinks.map((item) => <a href={linkSettings[item.id].url} target="_blank" rel="noopener noreferrer" key={item.id}>{linkSettings[item.id].name}</a>)}
-            </div>
-          </article>
         </div>
       </section>
 
@@ -390,7 +481,7 @@ export default function Home() {
               <button className="link-modal-close" type="button" aria-label="Close URL editor" onClick={() => setIsEditingLinks(false)}>×</button>
             </header>
             <div className="link-modal-body">
-              {[...links, ...aiLinks].map((item) => (
+              {allLinkItems.filter((item) => !hiddenLinkIds.includes(item.id)).sort((a, b) => linkOrder.indexOf(a.id) - linkOrder.indexOf(b.id)).map((item, index, orderedItems) => (
                 <div className="link-modal-row" key={item.id}>
                   <label htmlFor={`name-${item.id}`}>{linkSettings[item.id].name}</label>
                   <div className={`link-fields ${"key" in item ? "" : "ai-fields"}`}>
@@ -398,11 +489,28 @@ export default function Home() {
                     {"key" in item && <input aria-label={`${item.name} letter`} className="link-key-input" value={draftLinkSettings[item.id].key} maxLength={5} placeholder="Icon" onChange={(event) => setDraftLinkSettings((current) => ({ ...current, [item.id]: { ...current[item.id], key: event.target.value.toUpperCase() } }))} />}
                     <input id={`url-${item.id}`} aria-label={`${item.name} URL`} className="link-url-input" type="url" value={draftLinkSettings[item.id].url} placeholder="https://" onChange={(event) => setDraftLinkSettings((current) => ({ ...current, [item.id]: { ...current[item.id], url: event.target.value } }))} />
                   </div>
-                  <button type="button" disabled={savingLink === item.id || JSON.stringify(draftLinkSettings[item.id]) === JSON.stringify(linkSettings[item.id])} onClick={() => saveLink(item.id)}>
+                  <div className="link-row-actions">
+                  <div className="reorder-buttons">
+                    <button type="button" aria-label={`Move ${linkSettings[item.id].name} up`} disabled={isReorderingLinks || index === 0} onClick={() => moveLink(item.id, -1)}>↑</button>
+                    <button type="button" aria-label={`Move ${linkSettings[item.id].name} down`} disabled={isReorderingLinks || index === orderedItems.length - 1} onClick={() => moveLink(item.id, 1)}>↓</button>
+                  </div>
+                  <button type="button" disabled={savingLink === item.id || deletingLink === item.id || JSON.stringify(draftLinkSettings[item.id]) === JSON.stringify(linkSettings[item.id])} onClick={() => saveLink(item.id)}>
                     {savingLink === item.id ? "Saving…" : JSON.stringify(draftLinkSettings[item.id]) === JSON.stringify(linkSettings[item.id]) ? "Saved" : "Save"}
                   </button>
+                  <button className="delete-link" type="button" disabled={savingLink === item.id || deletingLink === item.id} onClick={() => deleteLink(item.id)}>Delete</button>
+                  </div>
                 </div>
               ))}
+              {hiddenLinkIds.length > 0 && (
+                <div className="deleted-links">
+                  <span>Deleted cards</span>
+                  {hiddenLinkIds.map((id) => (
+                    <button type="button" disabled={savingLink === id} onClick={() => saveLink(id)} key={id}>
+                      {savingLink === id ? "Restoring..." : `Restore ${linkSettings[id]?.name ?? id}`}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
             <footer className="link-modal-footer">
               <span role="status">{linkMessage}</span>
