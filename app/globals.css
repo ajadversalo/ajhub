@@ -638,6 +638,15 @@ html,body,button,input,textarea,select,kbd,code{font-family:var(--font-dashboard
   main:not(.dashboard-collapsed) .project-card,main:not(.dashboard-collapsed) .commands{height:100%}
   main:not(.dashboard-collapsed) footer{align-self:end;margin-top:0;padding-top:14px;padding-bottom:18px}
 }
+@media(min-width:1101px) and (min-height:800px){
+  main:not(.dashboard-collapsed):not(.public-home){grid-template-rows:auto minmax(18px,.55fr) auto minmax(18px,1fr) auto minmax(12px,.65fr) auto;align-content:stretch}
+  main:not(.dashboard-collapsed)>.topbar{grid-row:1}
+  main:not(.dashboard-collapsed)>.primary-tools{grid-row:3}
+  main:not(.dashboard-collapsed)>.collapsible-dashboard{grid-row:5;height:auto;display:block}
+  main:not(.dashboard-collapsed)>.collapsible-dashboard .lower-grid{height:auto}
+  main:not(.dashboard-collapsed)>.collapsible-dashboard .project-card,main:not(.dashboard-collapsed)>.collapsible-dashboard .commands{height:auto}
+  main:not(.dashboard-collapsed)>footer{grid-row:7;align-self:end}
+}
 @media(min-width:1280px){
   .launch-grid{grid-template-columns:repeat(10,minmax(0,1fr));gap:10px}
   .launch-grid .launch-card,[data-theme="dark"] .launch-grid .launch-card{aspect-ratio:1;min-height:0;padding:13px;border-radius:20px}
@@ -660,3 +669,31 @@ html,body,button,input,textarea,select,kbd,code{font-family:var(--font-dashboard
 .launch-grid .launch-card:hover:after,.launch-grid .launch-card:focus-visible:after{background:var(--fx)!important;animation:card-signal 1.15s ease-in-out infinite}
 @keyframes card-signal{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--fx) 42%,transparent)}50%{box-shadow:0 0 0 7px transparent}}
 @media(prefers-reduced-motion:reduce){.launch-grid .launch-card:hover:after,.launch-grid .launch-card:focus-visible:after{animation:none}.launch-grid .launch-card:before{display:none}}
+
+/* Mobile layout: isolate it from the desktop theme cascade. */
+@media(max-width:600px){
+  html,body{overflow-x:hidden}
+  main{width:100%;padding-inline:12px;overflow-x:clip}
+  .topbar{height:72px;grid-template-columns:minmax(0,1fr) auto auto;gap:7px}
+  .brand{font-size:12px}.brand span{width:38px;height:38px;margin-right:7px}
+  .theme-toggle{height:34px;padding-inline:8px}
+  .topbar .signout-form button{height:32px;min-width:42px;padding:0 9px;font-size:0!important}
+  .topbar .signout-form button:after{content:"EXIT";font-size:8px}
+  .primary-tools{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;padding:22px 0 8px}
+  .hero{width:100%;min-height:0;display:grid;grid-template-columns:minmax(0,1fr);gap:18px;padding:0}
+  .hero h1{width:100%;font-size:38px;line-height:.98;white-space:normal}
+  .hero-meta{width:100%;margin:0;display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .weather-summary{min-height:54px;padding:8px 12px}.weather-summary .forecast-icon{width:36px;height:36px}
+  .hero-meta time{flex:0 0 auto;margin:0;font-size:18px;white-space:nowrap}
+  .search{width:100%;height:58px;padding-inline:14px;border-radius:18px;grid-template-columns:38px minmax(0,1fr) auto;gap:10px}
+  .search input{width:100%;font-size:12px;text-overflow:ellipsis}
+  .launch-section{margin-top:28px}.launch-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .launch-grid .launch-card,[data-theme="dark"] .launch-grid .launch-card{width:100%;min-height:112px;aspect-ratio:auto}
+  .lower-grid{grid-template-columns:minmax(0,1fr);gap:12px;margin-top:28px}
+  .project-card,.commands{width:100%;min-height:0;height:auto;padding:20px}
+  .market-card,[data-theme="light"] .market-card{min-height:240px}
+  .market-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .market-item,.market-item:first-child,.market-item:last-child{padding:14px 10px}
+  .calendar-grid{min-height:270px}
+  footer{margin-top:18px;padding:16px 2px 24px;gap:12px;font-size:7px}
+}
