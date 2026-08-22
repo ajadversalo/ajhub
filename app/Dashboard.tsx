@@ -5,7 +5,6 @@ import { siGithub, siGooglegemini, siGooglemaps, siNotion } from "simple-icons";
 import { SiteHeader } from "./SiteHeader";
 
 type LinkItem = { id: string; name: string; url: string; key: string; tone: string };
-type SearchResult = { title: string; url: string; description?: string };
 type MarketQuote = { symbol: string; name: string; price: number; change: number; changePercent: number };
 type LinkSettings = { url: string; name: string; key: string };
 type Weather = { temperature: number; apparentTemperature: number; code: number; isDay: boolean; label: string; location: string };
@@ -96,10 +95,9 @@ function SiteMark({ url, monogram }: { url: string; monogram: string }) {
 export default function Dashboard({ user }: { user: { name: string; email: string } }) {
   const [time, setTime] = useState<Date | null>(null);
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<SearchResult[]>([]);
   const [searchedQuery, setSearchedQuery] = useState("");
-  const [isSearching, setIsSearching] = useState(false);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [isDashboardCollapsed, setIsDashboardCollapsed] = useState(false);
   const [markets, setMarkets] = useState<MarketQuote[]>([]);
   const [marketStatus, setMarketStatus] = useState<"loading" | "ready" | "error">("loading");
   const [weather, setWeather] = useState<Weather | null>(null);
@@ -282,37 +280,24 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
     } finally { setIsSavingWatchlist(false); }
   }
 
-  async function search(event: FormEvent) {
+  function search(event: FormEvent) {
     event.preventDefault();
     const value = query.trim();
     if (!value) return;
     const [prefix, ...rest] = value.split(" ");
     const engine = searches[prefix.toLowerCase()];
-    if (engine) {
+    if (engine && prefix.toLowerCase() !== "g") {
       window.open(engine + encodeURIComponent(rest.join(" ")), "_blank", "noopener,noreferrer");
       return;
     }
-    setSearchedQuery(value);
+    const googleQuery = prefix.toLowerCase() === "g" ? rest.join(" ").trim() : value;
+    if (!googleQuery) return;
+    setSearchedQuery(googleQuery);
     setIsPanelOpen(true);
-    setIsSearching(true);
-    setResults([]);
-    try {
-      const response = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(value)}&format=json&no_html=1&skip_disambig=1`);
-      const data = await response.json();
-      const related = (data.RelatedTopics ?? []).flatMap((item: { Text?: string; FirstURL?: string; Topics?: SearchResult[] }) =>
-        item.Topics ?? (item.Text && item.FirstURL ? [{ title: item.Text.split(" - ")[0], description: item.Text, url: item.FirstURL }] : [])
-      );
-      const answer = data.AbstractURL && data.AbstractText ? [{ title: data.Heading || value, description: data.AbstractText, url: data.AbstractURL }] : [];
-      setResults([...answer, ...related].slice(0, 6));
-    } catch {
-      setResults([]);
-    } finally {
-      setIsSearching(false);
-    }
   }
 
   return (
-    <main>
+    <main className={isDashboardCollapsed ? "dashboard-collapsed" : ""}>
       <div className="ambient one" />
       <div className="ambient two" />
 
@@ -349,6 +334,7 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
         <kbd>/</kbd>
       </form>
 
+      <div className="collapsible-dashboard" hidden={isDashboardCollapsed}>
       <section className="launch-section">
         <div className="section-heading">
           <h2>Launchpad</h2>
@@ -408,11 +394,27 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
           </div>
         </aside>
       </section>
+      </div>
 
       <footer>
         <span>PRIVATE UTILITY, PUBLICLY HARMLESS.</span>
         <span>MADE FOR AJ · {time?.getFullYear() ?? "2026"}</span>
       </footer>
+
+      <button
+        className="dashboard-collapse-toggle"
+        type="button"
+        aria-label={isDashboardCollapsed ? "Expand dashboard" : "Collapse dashboard"}
+        aria-expanded={!isDashboardCollapsed}
+        title={isDashboardCollapsed ? "Expand dashboard" : "Collapse dashboard"}
+        onClick={() => setIsDashboardCollapsed((collapsed) => !collapsed)}
+      >
+        {isDashboardCollapsed ? (
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5" /></svg>
+        ) : (
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h5V3M21 8h-5V3M3 16h5v5M21 16h-5v5" /></svg>
+        )}
+      </button>
 
       {isPanelOpen && <button className="panel-backdrop" aria-label="Close search results" onClick={() => setIsPanelOpen(false)} />}
       <aside className={`results-panel ${isPanelOpen ? "open" : ""}`} aria-hidden={!isPanelOpen} aria-label="Search results">
@@ -420,15 +422,8 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
           <div><span>Search results</span><h2>{searchedQuery}</h2></div>
           <button onClick={() => setIsPanelOpen(false)} aria-label="Close search results">×</button>
         </div>
-        <div className="results-body">
-          {isSearching && <div className="results-loading"><i /><i /><i /><span>Searching the web…</span></div>}
-          {!isSearching && results.length > 0 && results.map((result) => (
-            <a className="result-item" href={result.url} target="_blank" rel="noopener noreferrer" key={result.url}>
-              <span>{new URL(result.url).hostname.replace("www.", "")}</span><h3>{result.title}</h3>
-              {result.description && <p>{result.description}</p>}<b>↗</b>
-            </a>
-          ))}
-          {!isSearching && results.length === 0 && <div className="empty-results"><span>⌕</span><h3>No instant answer found</h3><p>Try the full web search below for more results.</p></div>}
+        <div className="results-body google-results-body">
+          {searchedQuery && <iframe key={searchedQuery} className="google-results-frame" src={`https://www.google.com/search?igu=1&q=${encodeURIComponent(searchedQuery)}`} title={`Google results for ${searchedQuery}`} />}
         </div>
         <div className="results-footer">
           <a href={`https://www.google.com/search?q=${encodeURIComponent(searchedQuery)}`} target="_blank" rel="noopener noreferrer">Open full Google results <span>↗</span></a>

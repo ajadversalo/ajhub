@@ -49,6 +49,12 @@ kbd{border:1px solid #313a32;background:#151a16;color:#949d95;padding:5px 8px;bo
 .commands code{color:var(--green);font-weight:700}
 .commands b{color:#5d655e;font-weight:400}
 footer{border-top:1px solid var(--line);padding:22px 0 28px;margin-top:36px;display:flex;justify-content:space-between;color:#59615a}
+.dashboard-collapsed{display:flex;flex-direction:column}
+.dashboard-collapsed footer{margin-top:auto}
+.dashboard-collapse-toggle{position:fixed;z-index:19;left:clamp(17px,2vw,30px);bottom:clamp(17px,2vw,30px);width:38px;height:38px;display:grid;place-items:center;padding:0;border:1px solid var(--line);background:var(--surface);color:var(--ink);box-shadow:0 8px 24px #00000018;cursor:pointer;transition:background .18s,border-color .18s,transform .18s}
+.dashboard-collapse-toggle:hover,.dashboard-collapse-toggle:focus-visible{background:var(--surface-2);border-color:var(--muted);transform:translateY(-2px)}
+.dashboard-collapse-toggle svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+[data-theme="dark"] .dashboard-collapse-toggle{background:var(--surface);border-color:var(--line);box-shadow:0 8px 24px #0008}
 @media(max-width:800px){main{padding:0 20px}.topbar{grid-template-columns:1fr auto}.date{display:none}.hero{min-height:72px}.hero time{font-size:20px}.launch-grid{grid-template-columns:repeat(2,1fr)}.launch-card:last-child{grid-column:span 2}.lower-grid{grid-template-columns:1fr}.commands{border-left:0;border-top:1px solid var(--line)}}
 @media(max-width:500px){.search{height:58px}.search input{font-size:13px}.launch-section{margin-top:34px}.launch-card{min-height:112px}.project-body{grid-template-columns:1fr}.commands li{grid-template-columns:34px 1fr}.commands b{display:none}footer{gap:20px;line-height:1.4}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
@@ -103,6 +109,8 @@ footer{color:#938f87;margin-top:48px}
 .results-topbar h2{font:400 30px/1.15 Georgia,"Times New Roman",serif;letter-spacing:-.035em;margin:8px 0 0;max-width:380px}
 .results-topbar button{width:34px;height:34px;border:1px solid #d5cfc4;border-radius:50%;background:transparent;color:#6e6a63;font-size:22px;line-height:1;cursor:pointer}
 .results-body{overflow:auto;padding:10px 28px}
+.results-body.google-results-body{overflow:hidden;padding:0;background:#fff}
+.google-results-frame{display:block;width:100%;height:100%;border:0;background:#fff}
 .result-item{display:block;padding:20px 34px 20px 0;border-bottom:1px solid #e2ddd4;position:relative}
 .result-item>span{color:#8a857c;font:550 9px var(--font-geist-mono),monospace;text-transform:uppercase;letter-spacing:.08em}
 .result-item h3{font-size:15px;letter-spacing:-.01em;margin:7px 0 6px}.result-item p{font-size:11px;line-height:1.55;color:#767169;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -333,6 +341,18 @@ main{width:100%;max-width:none;padding-left:clamp(20px,3vw,56px);padding-right:c
 .market-item strong{max-width:100%;font-size:clamp(17px,1.7vw,29px);overflow-wrap:anywhere}
 @media(max-width:520px){.market-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.market-item:first-child{padding-left:12px}.market-item:last-child{padding-right:12px}}
 
+/* Keep the market panel in sync with the active light palette. */
+[data-theme="light"] .market-card{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
+[data-theme="light"] .market-card .section-heading span,
+[data-theme="light"] .market-item span{color:var(--green)}
+[data-theme="light"] .market-grid{border-color:var(--line)}
+[data-theme="light"] .market-item{border-color:var(--line)}
+[data-theme="light"] .market-item small,
+[data-theme="light"] .market-note{color:var(--muted)}
+[data-theme="light"] .market-tools button{border-color:var(--line);color:var(--ink)}
+[data-theme="light"] .market-tools button:hover{border-color:var(--muted)}
+[data-theme="light"] .market-item.loading{background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--ink) 5%,transparent),transparent);background-size:200% 100%}
+
 /* Signal Desk typography and dark-mode palette */
 html,body,button,input,textarea,select{font-family:var(--font-geist-sans,Arial),"Helvetica Neue",Arial,sans-serif}
 .brand,.brand span,.hero h1,.section-heading h2,.launch-card strong{
@@ -439,10 +459,10 @@ html,body,button,input,textarea,select{font-family:var(--font-geist-sans,Arial),
 .launch-grid .launch-card:focus-visible{
   --card-accent:#858986!important;
   --hover-accent:#858986;
-  background:#eceeeb;
-  border-color:#cfd3cf;
+  background:var(--surface);
+  border-color:var(--line);
 }
-.launch-grid .launch-card:hover,.launch-grid .launch-card:focus-visible{background:#e4e7e3}
+.launch-grid .launch-card:hover,.launch-grid .launch-card:focus-visible{background:var(--surface-2)}
 [data-theme="dark"] .launch-grid .launch-card,
 [data-theme="dark"] .launch-grid .launch-card:hover,
 [data-theme="dark"] .launch-grid .launch-card:focus-visible{
