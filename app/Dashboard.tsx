@@ -430,7 +430,7 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
 
       <footer>
         <span>PRIVATE UTILITY, PUBLICLY HARMLESS.</span>
-        <span>MADE FOR AJ · {time?.getFullYear() ?? "2026"}</span>
+        <span>MADE BY AJ · {time?.getFullYear() ?? "2026"}</span>
       </footer>
 
       <button
