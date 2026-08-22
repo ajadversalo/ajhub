@@ -67,6 +67,35 @@ function WeatherIcon({ weather }: { weather: Weather }) {
   return <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></svg>;
 }
 
+const bcStatutoryHolidays: Record<string, string> = {
+  "2026-01-01": "New Year’s Day",
+  "2026-02-16": "Family Day",
+  "2026-04-03": "Good Friday",
+  "2026-05-18": "Victoria Day",
+  "2026-07-01": "Canada Day",
+  "2026-08-03": "B.C. Day",
+  "2026-09-07": "Labour Day",
+  "2026-09-30": "National Day for Truth and Reconciliation",
+  "2026-10-12": "Thanksgiving Day",
+  "2026-11-11": "Remembrance Day",
+  "2026-12-25": "Christmas Day",
+  "2027-01-01": "New Year’s Day",
+  "2027-02-15": "Family Day",
+  "2027-03-26": "Good Friday",
+  "2027-05-24": "Victoria Day",
+  "2027-07-01": "Canada Day",
+  "2027-08-02": "B.C. Day",
+  "2027-09-06": "Labour Day",
+  "2027-09-30": "National Day for Truth and Reconciliation",
+  "2027-10-11": "Thanksgiving Day",
+  "2027-11-11": "Remembrance Day",
+  "2027-12-25": "Christmas Day",
+};
+
+function getCalendarDateKey(date: Date, day: number) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+
 function SiteMark({ url, monogram, customIcon }: { url: string; monogram: string; customIcon?: string | null }) {
   const [logoAttempt, setLogoAttempt] = useState(0);
   const hostname = new URL(url).hostname.replace(/^www\./, "");
@@ -97,6 +126,7 @@ function SiteMark({ url, monogram, customIcon }: { url: string; monogram: string
 
 export default function Dashboard({ user }: { user: { name: string; email: string } }) {
   const [time, setTime] = useState<Date | null>(null);
+  const [calendarDate, setCalendarDate] = useState<Date | null>(null);
   const [query, setQuery] = useState("");
   const [searchedQuery, setSearchedQuery] = useState("");
   const [isPanelOpen, setIsPanelOpen] = useState(false);
@@ -119,6 +149,7 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
   const [isReorderingLinks, setIsReorderingLinks] = useState(false);
   const [linkMessage, setLinkMessage] = useState("");
   const searchRef = useRef<HTMLInputElement>(null);
+  const calendarTouchStart = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -138,7 +169,9 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
   useEffect(() => {
     // Clock values are client-only and must be set after hydration.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setTime(new Date());
+    const now = new Date();
+    setTime(now);
+    setCalendarDate(now);
     const timer = window.setInterval(() => setTime(new Date()), 1000);
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "/" && document.activeElement !== searchRef.current) {
@@ -158,6 +191,21 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
       window.removeEventListener("keydown", onKey);
     };
   }, []);
+
+  function changeCalendarMonth(offset: number) {
+    setCalendarDate((current) => {
+      const date = current ?? new Date();
+      return new Date(date.getFullYear(), date.getMonth() + offset, 1);
+    });
+  }
+
+  function resetCalendarMonth() {
+    setCalendarDate(new Date());
+  }
+
+  const isCurrentCalendarMonth = Boolean(time && calendarDate
+    && time.getFullYear() === calendarDate.getFullYear()
+    && time.getMonth() === calendarDate.getMonth());
 
   useEffect(() => {
     let active = true;
@@ -415,17 +463,48 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
 
         <aside className="commands calendar-card">
           <div className="section-heading">
-            <h2>{time?.toLocaleDateString("en-CA", { month: "long", year: "numeric" }) ?? "Calendar"}</h2>
-            <span>THIS MONTH</span>
+            <h2>{calendarDate?.toLocaleDateString("en-CA", { month: "long", year: "numeric" }) ?? "Calendar"}</h2>
+            <div className="calendar-tools">
+              <button type="button" aria-label="Previous month" onClick={() => changeCalendarMonth(-1)}>‹</button>
+              <button className="calendar-reset" type="button" onClick={resetCalendarMonth} disabled={isCurrentCalendarMonth}>This month</button>
+              <button type="button" aria-label="Next month" onClick={() => changeCalendarMonth(1)}>›</button>
+            </div>
           </div>
           <div className="calendar-weekdays" aria-hidden="true">
             {['S','M','T','W','T','F','S'].map((day, index) => <span key={`${day}-${index}`}>{day}</span>)}
           </div>
-          <div className="calendar-grid" aria-label="Current month calendar">
-            {(time ? getCalendarDays(time) : Array(42).fill(null)).map((day, index) => (
-              <span className={day === time?.getDate() ? "today" : ""} key={index}>{day}</span>
-            ))}
+          <div
+            className="calendar-grid"
+            aria-label={calendarDate ? `${calendarDate.toLocaleDateString("en-CA", { month: "long", year: "numeric" })} calendar` : "Calendar"}
+            onTouchStart={(event) => {
+              const touch = event.touches[0];
+              calendarTouchStart.current = { x: touch.clientX, y: touch.clientY };
+            }}
+            onTouchEnd={(event) => {
+              const start = calendarTouchStart.current;
+              const touch = event.changedTouches[0];
+              calendarTouchStart.current = null;
+              if (!start || !touch) return;
+              const deltaX = touch.clientX - start.x;
+              const deltaY = touch.clientY - start.y;
+              if (Math.abs(deltaX) < 45 || Math.abs(deltaX) <= Math.abs(deltaY)) return;
+              changeCalendarMonth(deltaX < 0 ? 1 : -1);
+            }}
+          >
+            {(calendarDate ? getCalendarDays(calendarDate) : Array(42).fill(null)).map((day, index) => {
+              const holiday = day && calendarDate ? bcStatutoryHolidays[getCalendarDateKey(calendarDate, day)] : null;
+              const isToday = isCurrentCalendarMonth && day === time?.getDate();
+              return (
+                <span
+                  className={`${isToday ? "today " : ""}${holiday ? "holiday" : ""}`.trim()}
+                  key={index}
+                  title={holiday ?? undefined}
+                  aria-label={holiday ? `${day}, ${holiday}` : undefined}
+                >{day}</span>
+              );
+            })}
           </div>
+          <p className="calendar-legend"><i aria-hidden="true" />B.C. statutory holiday</p>
         </aside>
       </section>
       </div>
