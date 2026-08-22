@@ -296,6 +296,13 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
     setIsPanelOpen(true);
   }
 
+  function toggleDashboard() {
+    const update = () => setIsDashboardCollapsed((collapsed) => !collapsed);
+    const transitionDocument = document as Document & { startViewTransition?: (callback: () => void) => void };
+    if (transitionDocument.startViewTransition) transitionDocument.startViewTransition(update);
+    else update();
+  }
+
   return (
     <main className={isDashboardCollapsed ? "dashboard-collapsed" : ""}>
       <div className="ambient one" />
@@ -303,6 +310,7 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
 
       <SiteHeader user={user} />
 
+      <div className="primary-tools">
       <section className="hero">
         <h1>
           {time ? (time.getHours() < 12 ? "Good morning" : time.getHours() < 18 ? "Good afternoon" : "Good evening") : "Good day"}, AJ
@@ -333,8 +341,9 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
         />
         <kbd>/</kbd>
       </form>
+      </div>
 
-      <div className="collapsible-dashboard" hidden={isDashboardCollapsed}>
+      <div className={`collapsible-dashboard${isDashboardCollapsed ? " is-collapsed" : ""}`} aria-hidden={isDashboardCollapsed} inert={isDashboardCollapsed}>
       <section className="launch-section">
         <div className="section-heading">
           <h2>Launchpad</h2>
@@ -407,7 +416,7 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
         aria-label={isDashboardCollapsed ? "Expand dashboard" : "Collapse dashboard"}
         aria-expanded={!isDashboardCollapsed}
         title={isDashboardCollapsed ? "Expand dashboard" : "Collapse dashboard"}
-        onClick={() => setIsDashboardCollapsed((collapsed) => !collapsed)}
+        onClick={toggleDashboard}
       >
         {isDashboardCollapsed ? (
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5" /></svg>
