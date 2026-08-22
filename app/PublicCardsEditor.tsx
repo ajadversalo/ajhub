@@ -1,6 +1,7 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 type EditablePublicCard = {
   slot: number;
@@ -25,6 +26,7 @@ export function PublicCardsEditor() {
   const [cards, setCards] = useState<EditablePublicCard[]>(emptyCards);
   const [savingSlot, setSavingSlot] = useState<number | null>(null);
   const [message, setMessage] = useState("");
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -42,11 +44,17 @@ export function PublicCardsEditor() {
 
   useEffect(() => {
     if (!isOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeButtonRef.current?.focus();
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") setIsOpen(false);
     };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKey);
+    };
   }, [isOpen]);
 
   function updateCard(slot: number, field: keyof Omit<EditablePublicCard, "slot">, value: string) {
@@ -119,12 +127,12 @@ export function PublicCardsEditor() {
       <button className="public-cards-edit-button" type="button" onClick={() => { setMessage(""); setIsOpen(true); }} aria-label="Edit public cards" title="Edit public cards">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h4v4H5V5Zm10 0h4v4h-4V5ZM5 15h4v4H5v-4Zm10 0h4v4h-4v-4Z" /></svg>
       </button>
-      {isOpen && (
+      {isOpen && createPortal(
         <div className="public-card-editor-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setIsOpen(false); }}>
           <section className="public-card-editor" role="dialog" aria-modal="true" aria-labelledby="public-card-editor-title">
             <header>
               <div><span>Public page</span><h2 id="public-card-editor-title">Expanded cards</h2></div>
-              <button type="button" onClick={() => setIsOpen(false)} aria-label="Close public card editor">×</button>
+              <button className="public-card-editor-close" ref={closeButtonRef} type="button" onClick={() => setIsOpen(false)} aria-label="Close public card editor">×</button>
             </header>
             <div className="public-card-editor-body">
               {cards.map((card) => (
@@ -143,7 +151,7 @@ export function PublicCardsEditor() {
                     </span>
                     <label className="public-card-icon-upload" htmlFor={`public-card-icon-${card.slot}`}>Upload icon</label>
                     <input id={`public-card-icon-${card.slot}`} className="icon-file-input" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => { selectIcon(card.slot, event.target.files?.[0]); event.currentTarget.value = ""; }} />
-                    {card.iconData && <button className="public-card-icon-remove" type="button" onClick={() => setCards((current) => current.map((item) => item.slot === card.slot ? { ...item, iconData: null } : item))}>Remove</button>}
+                    {card.iconData && <button className="public-card-icon-remove" type="button" onClick={() => setCards((current) => current.map((item) => item.slot === card.slot ? { ...item, iconData: null } : item))}>Remove icon</button>}
                     <small>PNG, JPEG or WebP · 256 KB max</small>
                   </div>
                   <div className="public-card-editor-actions">
@@ -155,8 +163,7 @@ export function PublicCardsEditor() {
             </div>
             <footer><span>{message || "Only saved cards appear on the logged-out page."}</span><button type="button" onClick={() => setIsOpen(false)}>Done</button></footer>
           </section>
-        </div>
-      )}
+        </div>, document.body)}
     </>
   );
 }
