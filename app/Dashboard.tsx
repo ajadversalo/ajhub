@@ -419,7 +419,7 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
       {isPanelOpen && <button className="panel-backdrop" aria-label="Close search results" onClick={() => setIsPanelOpen(false)} />}
       <aside className={`results-panel ${isPanelOpen ? "open" : ""}`} aria-hidden={!isPanelOpen} aria-label="Search results">
         <div className="results-topbar">
-          <div><span>Search results</span><h2>{searchedQuery}</h2></div>
+          <div><span>Search results</span></div>
           <button onClick={() => setIsPanelOpen(false)} aria-label="Close search results">×</button>
         </div>
         <div className="results-body google-results-body">
