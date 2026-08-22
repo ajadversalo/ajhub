@@ -8,6 +8,7 @@ type EditablePublicCard = {
   description: string;
   url: string;
   techStack: string;
+  iconData: string | null;
 };
 
 const emptyCards = () => Array.from({ length: 9 }, (_, index) => ({
@@ -16,6 +17,7 @@ const emptyCards = () => Array.from({ length: 9 }, (_, index) => ({
   description: "",
   url: "",
   techStack: "",
+  iconData: null,
 }));
 
 export function PublicCardsEditor() {
@@ -49,6 +51,26 @@ export function PublicCardsEditor() {
 
   function updateCard(slot: number, field: keyof Omit<EditablePublicCard, "slot">, value: string) {
     setCards((current) => current.map((card) => card.slot === slot ? { ...card, [field]: value } : card));
+  }
+
+  function selectIcon(slot: number, file?: File) {
+    if (!file) return;
+    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
+      setMessage("Choose a PNG, JPEG, or WebP image.");
+      return;
+    }
+    if (file.size > 256 * 1024) {
+      setMessage("Icon must be 256 KB or smaller.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result !== "string") return;
+      setCards((current) => current.map((card) => card.slot === slot ? { ...card, iconData: reader.result as string } : card));
+      setMessage(`Icon ready. Save card ${slot} to upload it.`);
+    };
+    reader.onerror = () => setMessage("That image could not be read.");
+    reader.readAsDataURL(file);
   }
 
   async function saveCard(event: FormEvent, card: EditablePublicCard) {
@@ -112,9 +134,21 @@ export function PublicCardsEditor() {
                   <label>URL<input type="url" value={card.url} maxLength={2048} placeholder="https://" onChange={(event) => updateCard(card.slot, "url", event.target.value)} /></label>
                   <label className="public-card-description">Description<textarea value={card.description} maxLength={280} rows={3} onChange={(event) => updateCard(card.slot, "description", event.target.value)} /></label>
                   <label className="public-card-stack">Tech stack<input value={card.techStack} maxLength={200} placeholder="React, TypeScript, Cloudflare" onChange={(event) => updateCard(card.slot, "techStack", event.target.value)} /></label>
+                  <div className="public-card-icon-field">
+                    <span className="public-card-icon-preview" aria-hidden="true">
+                      {card.iconData
+                        // eslint-disable-next-line @next/next/no-img-element
+                        ? <img src={card.iconData} alt="" />
+                        : String(card.slot).padStart(2, "0")}
+                    </span>
+                    <label className="public-card-icon-upload" htmlFor={`public-card-icon-${card.slot}`}>Upload icon</label>
+                    <input id={`public-card-icon-${card.slot}`} className="icon-file-input" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => { selectIcon(card.slot, event.target.files?.[0]); event.currentTarget.value = ""; }} />
+                    {card.iconData && <button className="public-card-icon-remove" type="button" onClick={() => setCards((current) => current.map((item) => item.slot === card.slot ? { ...item, iconData: null } : item))}>Remove</button>}
+                    <small>PNG, JPEG or WebP · 256 KB max</small>
+                  </div>
                   <div className="public-card-editor-actions">
                     <button type="submit" disabled={savingSlot === card.slot}>{savingSlot === card.slot ? "Saving…" : "Save"}</button>
-                    <button className="remove" type="button" disabled={savingSlot === card.slot || (!card.title && !card.url && !card.description && !card.techStack)} onClick={() => removeCard(card.slot)}>Remove</button>
+                    <button className="remove" type="button" disabled={savingSlot === card.slot || (!card.title && !card.url && !card.description && !card.techStack && !card.iconData)} onClick={() => removeCard(card.slot)}>Remove</button>
                   </div>
                 </form>
               ))}

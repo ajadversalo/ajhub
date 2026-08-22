@@ -28,6 +28,9 @@ export async function PUT(request: Request) {
     if (typeof body.techStack !== "string" || body.techStack.trim().length > 200) {
       return Response.json({ error: "Tech stack must be 200 characters or fewer" }, { status: 400 });
     }
+    if (body.iconData !== null && body.iconData !== undefined && (typeof body.iconData !== "string" || body.iconData.length > 350000 || !/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/]+=*$/.test(body.iconData))) {
+      return Response.json({ error: "Icon must be a PNG, JPEG, or WebP image under 256 KB" }, { status: 400 });
+    }
     if (typeof body.url !== "string" || body.url.length > 2048) {
       return Response.json({ error: "Enter a valid URL" }, { status: 400 });
     }
@@ -48,6 +51,7 @@ export async function PUT(request: Request) {
       description: body.description.trim(),
       url: normalizedUrl,
       techStack,
+      iconData: typeof body.iconData === "string" ? body.iconData : null,
     };
     await savePublicCard(card);
     return Response.json({ card });
