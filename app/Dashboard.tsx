@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { siGithub, siGooglegemini, siGooglemaps, siNotion } from "simple-icons";
+import { PublicCardsEditor } from "./PublicCardsEditor";
 import { SiteHeader } from "./SiteHeader";
 
 type LinkItem = { id: string; name: string; url: string; key: string; tone: string };
@@ -421,6 +422,7 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
         <div className="section-heading">
           <h2>Launchpad</h2>
           <div className="link-tools">
+            <PublicCardsEditor />
             <button className="edit-links-button" type="button" aria-label="Edit launchpad links" title="Edit links" onClick={() => { setIsEditingLinks((value) => !value); setDraftLinkSettings(linkSettings); setLinkMessage(""); }}>
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4l11-11-4-4L4 16v4Zm13.5-16.5 3 3" /></svg>
             </button>
