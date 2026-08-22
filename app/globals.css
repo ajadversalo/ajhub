@@ -576,9 +576,8 @@ html,body{background:var(--bg)}body{background:var(--bg);color:var(--ink)}main{m
   footer{margin-top:12px;padding:14px 4px 18px}
 }
 .search-icon{position:relative;display:block}
-.search-icon:before{position:absolute;left:10px;top:9px;width:12px;height:12px;border:2px solid currentColor;border-radius:50%}
-.search-icon:after{position:absolute;left:23px;top:23px;width:7px;height:2px;right:auto;bottom:auto;border-radius:2px;background:currentColor;transform:rotate(45deg);transform-origin:left center}
-[data-theme="dark"] .search-icon:after{background:currentColor}
+.search-icon:before,.search-icon:after{content:none!important}
+.search-icon svg{position:absolute;inset:9px;width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
 :root{--font-geist-sans:var(--font-dashboard);--font-geist-mono:var(--font-dashboard)}
 html,body,button,input,textarea,select,kbd,code{font-family:var(--font-dashboard),"Avenir Next",Avenir,Arial,sans-serif}
 .link-tools .edit-links-button{background:var(--surface);color:var(--ink)}
@@ -622,6 +621,13 @@ html,body,button,input,textarea,select,kbd,code{font-family:var(--font-dashboard
   main:not(.dashboard-collapsed) .weather-summary .forecast-icon{width:36px;height:36px}
   main:not(.dashboard-collapsed) .hero-meta time{font-size:21px}
   main:not(.dashboard-collapsed) .search{width:100%;height:58px}
+}
+@media(min-width:1101px){
+  main:not(.dashboard-collapsed) .primary-tools{grid-template-columns:minmax(0,1fr);gap:10px;padding:8px 0 4px}
+  main:not(.dashboard-collapsed) .primary-tools>.hero{display:flex;min-height:56px;align-items:center;justify-content:space-between;gap:24px}
+  main:not(.dashboard-collapsed) .hero h1{flex:0 1 auto}
+  main:not(.dashboard-collapsed) .hero-meta{margin-left:auto;flex:0 0 auto}
+  main:not(.dashboard-collapsed) .search{grid-column:1;width:100%}
 }
 
 /* Upright launch-card hover effects. */
