@@ -578,6 +578,7 @@ html,body{background:var(--bg)}body{background:var(--bg);color:var(--ink)}main{m
 .search-icon{position:relative;display:block}
 .search-icon:before{position:absolute;left:10px;top:9px;width:12px;height:12px;border:2px solid currentColor;border-radius:50%}
 .search-icon:after{position:absolute;left:23px;top:23px;width:7px;height:2px;right:auto;bottom:auto;border-radius:2px;background:currentColor;transform:rotate(45deg);transform-origin:left center}
+[data-theme="dark"] .search-icon:after{background:currentColor}
 :root{--font-geist-sans:var(--font-dashboard);--font-geist-mono:var(--font-dashboard)}
 html,body,button,input,textarea,select,kbd,code{font-family:var(--font-dashboard),"Avenir Next",Avenir,Arial,sans-serif}
 .link-tools .edit-links-button{background:var(--surface);color:var(--ink)}
