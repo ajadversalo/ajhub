@@ -536,8 +536,37 @@ html,body{background:var(--bg)}body{background:var(--bg);color:var(--ink)}main{m
 }
 
 /* Final cascade alignment for the soft-metrics system. */
+.search-icon{position:relative;display:block}
+.search-icon:before{position:absolute;left:10px;top:9px;width:12px;height:12px;border:2px solid currentColor;border-radius:50%}
+.search-icon:after{position:absolute;left:23px;top:23px;width:7px;height:2px;right:auto;bottom:auto;border-radius:2px;background:currentColor;transform:rotate(45deg);transform-origin:left center}
+:root{--font-geist-sans:var(--font-dashboard);--font-geist-mono:var(--font-dashboard)}
+html,body,button,input,textarea,select,kbd,code{font-family:var(--font-dashboard),"Avenir Next",Avenir,Arial,sans-serif}
+.link-tools .edit-links-button{background:var(--surface);color:var(--ink)}
+.link-tools .edit-links-button svg{display:block;fill:none;stroke:currentColor}
+[data-theme="dark"] .link-tools .edit-links-button{background:var(--surface);color:var(--ink)}
+.calendar-weekdays span{font-size:9px;font-weight:650}
+.calendar-grid span{font-size:12px;font-weight:550}
+.calendar-grid .today,[data-theme="dark"] .calendar-grid .today{isolation:isolate;background:transparent!important;color:#fff!important;font-weight:700}
+.calendar-grid .today:before{width:32px;height:32px;background:var(--blue);box-shadow:0 4px 12px #2f9fdb35}
+[data-theme="dark"] .calendar-grid .today:before{background:var(--orange);box-shadow:0 4px 12px #f5a04a35}
+.hero{min-width:0}
+.hero h1{flex:1 1 auto;min-width:0;font-size:clamp(42px,4.4vw,64px);white-space:nowrap}
+.hero-meta{flex:0 0 auto}
+.market-card,[data-theme="light"] .market-card{background:var(--surface);color:var(--ink)}
+.market-card .section-heading h2,[data-theme="light"] .market-card .section-heading h2{color:var(--ink)}
+.market-grid,[data-theme="light"] .market-grid{border-color:var(--line)}
+.market-item,[data-theme="light"] .market-item{border-color:var(--line)}
+.market-item small,.market-note,[data-theme="light"] .market-item small,[data-theme="light"] .market-note{color:var(--muted)}
+.market-tools button,[data-theme="light"] .market-tools button{background:var(--surface-2);color:var(--ink)}
+[data-theme="dark"]{--bg:#1d201f;--surface:#292d2c;--surface-2:#343938;--ink:#f6f7f6;--muted:#a2aaa7;--line:#3a403e;--charcoal:#151817;--green:#48d68a;--green-dim:#244b37;--orange:#f5a04a;--orange-soft:#4c3b28;--blue:#54b5e7;--blue-soft:#263f4a;color-scheme:dark}
+[data-theme="dark"] .market-card{background:#151817;color:#fff}
+[data-theme="dark"] .market-card .section-heading h2{color:#fff}
+[data-theme="dark"] .market-grid{border-color:#ffffff1c}
+[data-theme="dark"] .market-item{border-color:#ffffff14}
+[data-theme="dark"] .market-item small,[data-theme="dark"] .market-note{color:#aeb3b1}
+[data-theme="dark"] .market-tools button{background:#ffffff12;color:#fff}
 .signout-form button,.auth-action{padding:10px 14px;border-radius:999px;background:var(--surface)}
 .weather-summary{gap:10px;padding:12px 18px;border:0}.weather-summary .forecast-icon{width:42px;height:42px}.weather-copy strong{font-size:20px}.hero-meta{gap:14px}
 @media(max-width:1100px){.launch-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:800px){.launch-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:600px){.launch-grid{gap:10px}.launch-grid .launch-card,[data-theme="dark"] .launch-grid .launch-card{min-height:122px;padding:15px;border-radius:20px}.weather-summary{padding:9px 13px;border:0}.weather-summary .forecast-icon{width:38px;height:38px}.hero-meta{gap:10px}}
+@media(max-width:600px){.hero h1{font-size:42px;white-space:normal}.launch-grid{gap:10px}.launch-grid .launch-card,[data-theme="dark"] .launch-grid .launch-card{min-height:122px;padding:15px;border-radius:20px}.weather-summary{padding:9px 13px;border:0}.weather-summary .forecast-icon{width:38px;height:38px}.hero-meta{gap:10px}}
