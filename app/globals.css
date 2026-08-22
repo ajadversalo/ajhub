@@ -614,6 +614,12 @@ html,body,button,input,textarea,select,kbd,code{font-family:var(--font-dashboard
 .topbar .signout-form button,.topbar .auth-action{height:34px;padding:0 12px;font-size:8px;line-height:1;letter-spacing:.09em}
 
 /* Upright launch-card hover effects. */
+@media(min-width:1280px){
+  .launch-grid{grid-template-columns:repeat(10,minmax(0,1fr));gap:10px}
+  .launch-grid .launch-card,[data-theme="dark"] .launch-grid .launch-card{aspect-ratio:1;min-height:0;padding:13px;border-radius:20px}
+  .launch-grid .launch-card strong{font-size:12px}
+  .launch-grid .launch-card .tile-icon.has-logo{width:36px;height:36px}
+}
 .launch-grid .launch-card{--fx:var(--orange);isolation:isolate;transition:transform .32s cubic-bezier(.2,.8,.2,1),box-shadow .32s ease,background-color .25s ease}
 .launch-grid .launch-card.blue,.launch-grid .launch-card.sky{--fx:var(--blue)}
 .launch-grid .launch-card.green,.launch-grid .launch-card.mint{--fx:var(--green)}
