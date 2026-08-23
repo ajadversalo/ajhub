@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 
 export function SiteHeader({ user }: { user: { email: string } | null }) {
   const [date, setDate] = useState<Date | null>(null);
@@ -28,6 +28,19 @@ export function SiteHeader({ user }: { user: { email: string } | null }) {
     window.localStorage.setItem("ajhub-theme", nextTheme);
   }
 
+  async function signOut(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    try {
+      if ("caches" in window) {
+        const keys = await window.caches.keys();
+        await Promise.all(keys.filter((key) => key.startsWith("aj-hub-")).map((key) => window.caches.delete(key)));
+      }
+    } finally {
+      form.submit();
+    }
+  }
+
   return (
     <header className="topbar">
       <Link className="brand" href="/" aria-label="AJ's Hub home">
@@ -41,7 +54,7 @@ export function SiteHeader({ user }: { user: { email: string } | null }) {
         <b className="theme-icon" aria-hidden="true">{theme === "light" ? "☀" : "☾"}</b>
       </button>
       {user ? (
-        <form action="/api/auth/logout" method="post" className="signout-form">
+        <form action="/api/auth/logout" method="post" className="signout-form" onSubmit={signOut}>
           <button type="submit" title={`Signed in as ${user.email}`}>Sign out</button>
         </form>
       ) : (
