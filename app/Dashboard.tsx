@@ -147,6 +147,7 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
   const [deletingLink, setDeletingLink] = useState<string | null>(null);
   const [hiddenLinkIds, setHiddenLinkIds] = useState<string[]>([]);
   const [linkOrder, setLinkOrder] = useState(defaultLinkOrder);
+  const [areLinksLoaded, setAreLinksLoaded] = useState(false);
   const [isReorderingLinks, setIsReorderingLinks] = useState(false);
   const [linkMessage, setLinkMessage] = useState("");
   const searchRef = useRef<HTMLInputElement>(null);
@@ -220,7 +221,8 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
         setHiddenLinkIds(data.hiddenIds ?? []);
         if (data.orderIds?.length === defaultLinkOrder.length) setLinkOrder(data.orderIds);
       })
-      .catch(() => { if (active) setLinkMessage("Using default links — Turso is unavailable."); });
+      .catch(() => { if (active) setLinkMessage("Using default links — Turso is unavailable."); })
+      .finally(() => { if (active) setAreLinksLoaded(true); });
     return () => { active = false; };
   }, []);
 
@@ -428,13 +430,13 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
             </button>
           </div>
         </div>
-        <div className="launch-grid">
-          {allLinkItems.filter((item) => !hiddenLinkIds.includes(item.id)).sort((a, b) => linkOrder.indexOf(a.id) - linkOrder.indexOf(b.id)).map((item) => (
+        <div className={`launch-grid${areLinksLoaded ? "" : " is-loading"}`} aria-busy={!areLinksLoaded}>
+          {areLinksLoaded ? allLinkItems.filter((item) => !hiddenLinkIds.includes(item.id)).sort((a, b) => linkOrder.indexOf(a.id) - linkOrder.indexOf(b.id)).map((item) => (
             <a className={`launch-card ${item.tone}`} href={linkSettings[item.id].url} target="_blank" rel="noopener noreferrer" key={item.id}>
               <SiteMark key={`${linkSettings[item.id].url}-${Boolean(linkSettings[item.id].iconData)}`} url={linkSettings[item.id].url} monogram={linkSettings[item.id].key} customIcon={linkSettings[item.id].iconData} />
               <strong>{linkSettings[item.id].name}</strong>
             </a>
-          ))}
+          )) : <span className="launch-grid-status">Loading launchpad…</span>}
         </div>
       </section>
 

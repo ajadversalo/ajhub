@@ -777,3 +777,7 @@ html,body,button,input,textarea,select,kbd,code{font-family:var(--font-dashboard
   .public-card-editor>footer{padding:12px 16px}
 }
 @media(prefers-reduced-motion:reduce){.public-url-card:before{display:none}.public-url-card:hover:after,.public-url-card:focus-visible:after{animation:none}}
+
+.launch-grid.is-loading{grid-template-columns:minmax(0,1fr);min-height:138px;place-items:center}
+.launch-grid.is-loading .launch-grid-status{color:var(--muted);font-size:8px;font-weight:650;letter-spacing:.1em;text-transform:uppercase}
+@media(max-width:600px){.launch-grid.is-loading{grid-template-columns:minmax(0,1fr);min-height:112px}}
