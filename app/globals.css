@@ -737,18 +737,6 @@ html,body,button,input,textarea,select,kbd,code{font-family:var(--font-dashboard
 .public-url-card:hover .public-card-arrow,.public-url-card:focus-visible .public-card-arrow{color:var(--fx);transform:translate(2px,-2px)}
 .public-url-card:hover .public-card-icon,.public-url-card:focus-visible .public-card-icon{transform:translate(-2px,2px) scale(1.08);filter:drop-shadow(0 7px 8px color-mix(in srgb,var(--fx) 28%,transparent))}
 .public-url-card:hover:after,.public-url-card:focus-visible:after{animation:card-signal 1.15s ease-in-out infinite}
-.public-card-spotlight-layer{--fx:var(--orange);position:fixed;z-index:90;inset:0;display:grid;place-items:center;padding:28px;pointer-events:none;background:#15191873;backdrop-filter:blur(14px) saturate(.7) brightness(.72);animation:public-card-backdrop-in .28s ease both}
-.public-card-spotlight-layer.blue,.public-card-spotlight-layer.sky{--fx:var(--blue)}.public-card-spotlight-layer.green,.public-card-spotlight-layer.mint{--fx:var(--green)}.public-card-spotlight-layer.yellow,.public-card-spotlight-layer.sand{--fx:#dda22c}.public-card-spotlight-layer.red{--fx:#e66355}.public-card-spotlight-layer.ink{--fx:#8f82bd}
-.public-card-spotlight-layer:before{content:"";position:absolute;width:min(70vw,720px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--fx) 22%,transparent),transparent 67%);filter:blur(26px);animation:public-card-aura 2.4s ease-in-out infinite}
-.public-url-card.is-spotlight-source{opacity:.06;filter:blur(8px);transform:scale(.94)!important}
-.public-url-card-spotlight{width:min(440px,calc(100vw - 40px));min-height:340px;z-index:1;pointer-events:auto;box-shadow:0 34px 100px #0008,0 0 80px color-mix(in srgb,var(--fx) 27%,transparent),inset 0 0 0 1px color-mix(in srgb,var(--fx) 42%,transparent);animation:public-card-spotlight-in .48s cubic-bezier(.16,1,.3,1) both}
-.public-url-card-spotlight:hover{transform:translateY(-4px) scale(1.015);box-shadow:0 42px 120px #0009,0 0 110px color-mix(in srgb,var(--fx) 34%,transparent),inset 0 0 0 1px color-mix(in srgb,var(--fx) 55%,transparent)}
-.public-url-card-spotlight .public-card-icon{width:66px;height:66px}
-.public-url-card-spotlight h2{font-size:34px}
-.public-url-card-spotlight p{font-size:14px}
-@keyframes public-card-backdrop-in{from{opacity:0;backdrop-filter:blur(0) saturate(1) brightness(1)}to{opacity:1}}
-@keyframes public-card-spotlight-in{from{opacity:0;transform:translateY(34px) scale(.78) rotate(-1.5deg)}to{opacity:1;transform:none}}
-@keyframes public-card-aura{0%,100%{opacity:.65;transform:scale(.94)}50%{opacity:1;transform:scale(1.06)}}
 
 /* Logged-in editor for the public cards. */
 .link-tools .public-cards-edit-button{width:38px;height:38px;display:grid;place-items:center;padding:0;border:0;border-radius:50%;background:var(--surface);color:var(--ink);box-shadow:0 8px 22px #2528270a;cursor:pointer}
@@ -788,4 +776,4 @@ html,body,button,input,textarea,select,kbd,code{font-family:var(--font-dashboard
   .public-card-editor>header{padding:17px 18px}
   .public-card-editor>footer{padding:12px 16px}
 }
-@media(prefers-reduced-motion:reduce){.public-url-card:before{display:none}.public-url-card:hover:after,.public-url-card:focus-visible:after,.public-card-spotlight-layer,.public-card-spotlight-layer:before,.public-url-card-spotlight{animation:none}}
+@media(prefers-reduced-motion:reduce){.public-url-card:before{display:none}.public-url-card:hover:after,.public-url-card:focus-visible:after{animation:none}}
