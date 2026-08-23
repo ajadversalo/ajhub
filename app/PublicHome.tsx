@@ -1,4 +1,5 @@
 import { SiteHeader } from "./SiteHeader";
+import { PublicCardGrid } from "./PublicCardGrid";
 import { getPublicCards } from "@/db/public-cards";
 
 const greetings = [
@@ -14,8 +15,6 @@ const greetings = [
   "Come on in.",
 ];
 
-const publicCardTones = ["coral", "blue", "green", "yellow", "ink", "sky", "red", "sand", "mint"];
-
 export async function PublicHome({ error = false }: { error?: boolean }) {
   const greeting = greetings[Math.floor(Math.random() * greetings.length)];
   const cards = await getPublicCards().catch(() => []);
@@ -30,24 +29,7 @@ export async function PublicHome({ error = false }: { error?: boolean }) {
         <span>Welcome</span>
         <h1 className="public-greeting-message" id="public-greeting-title">{greeting}</h1>
       </section>
-      {cards.length > 0 && (
-        <section className="public-card-grid" aria-label="Featured links">
-          {cards.map((card) => (
-            <a className={`public-url-card ${publicCardTones[card.slot - 1]}`} href={card.url} target="_blank" rel="noopener noreferrer" key={card.slot}>
-              <span className="public-card-number">{String(card.slot).padStart(2, "0")}</span>
-              <span className="public-card-arrow" aria-hidden="true">↗</span>
-              {card.iconData && <span className="public-card-icon" aria-hidden="true">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={card.iconData} alt="" />
-              </span>}
-              <h2>{card.title}</h2>
-              {card.description && <p>{card.description}</p>}
-              {card.techStack && <div className="public-card-tags">{card.techStack.split(",").map((tag) => <span key={tag}>{tag.trim()}</span>)}</div>}
-              <small title={card.url}>{card.url.replace(/^https?:\/\//, "").replace(/\/$/, "")}</small>
-            </a>
-          ))}
-        </section>
-      )}
+      {cards.length > 0 && <PublicCardGrid cards={cards} />}
     </main>
   );
 }
