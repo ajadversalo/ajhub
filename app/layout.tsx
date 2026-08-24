@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "AJ's Hub" },
   formatDetection: { telephone: false },
   openGraph: {
-    title: "AJ's Hub — Personal Command Center",
+    title: "AJ's Hub",
     description: "AJ's quiet corner of the internet.",
     images: [{ url: "/og.png", width: 1200, height: 630 }],
   },

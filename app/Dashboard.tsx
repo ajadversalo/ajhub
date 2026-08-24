@@ -437,9 +437,13 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
             <a
               className={`launch-card ${item.tone}`}
               href={linkSettings[item.id].url}
-              target={linkSettings[item.id].openMode === "new_tab" ? "_blank" : undefined}
-              rel={linkSettings[item.id].openMode === "new_tab" ? "noopener noreferrer" : undefined}
-              onClick={linkSettings[item.id].openMode === "modal" ? (event) => { event.preventDefault(); setModalLinkId(item.id); } : undefined}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={linkSettings[item.id].openMode === "modal" ? (event) => {
+                if (window.matchMedia("(max-width: 600px)").matches) return;
+                event.preventDefault();
+                setModalLinkId(item.id);
+              } : undefined}
               key={item.id}
             >
               <SiteMark key={`${linkSettings[item.id].url}-${Boolean(linkSettings[item.id].iconData)}`} url={linkSettings[item.id].url} monogram={linkSettings[item.id].key} customIcon={linkSettings[item.id].iconData} />
@@ -623,13 +627,17 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
         <div className="link-viewer-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setModalLinkId(null); }}>
           <section className="link-viewer" role="dialog" aria-modal="true" aria-labelledby="link-viewer-title">
             <header>
-              <div><span>AJHub</span><h2 id="link-viewer-title">{linkSettings[modalLinkId].name}</h2></div>
+              <h2 id="link-viewer-title">{linkSettings[modalLinkId].name}</h2>
               <div className="link-viewer-actions">
-                <a href={linkSettings[modalLinkId].url} target="_blank" rel="noopener noreferrer">Open in new tab ↗</a>
+                <a href={linkSettings[modalLinkId].url} target="_blank" rel="noopener noreferrer" aria-label="Open in new tab" title="Open in new tab">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 5h5v5M19 5l-8 8M17 13v6H5V7h6" /></svg>
+                </a>
                 <button type="button" aria-label={`Close ${linkSettings[modalLinkId].name}`} onClick={() => setModalLinkId(null)}>×</button>
               </div>
             </header>
-            <iframe src={linkSettings[modalLinkId].url} title={linkSettings[modalLinkId].name} />
+            <div className="link-viewer-frame">
+              <iframe src={linkSettings[modalLinkId].url} title={linkSettings[modalLinkId].name} />
+            </div>
           </section>
         </div>
       )}
