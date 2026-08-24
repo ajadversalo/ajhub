@@ -7,7 +7,7 @@ import { SiteHeader } from "./SiteHeader";
 
 type LinkItem = { id: string; name: string; url: string; key: string; tone: string };
 type MarketQuote = { symbol: string; name: string; price: number; change: number; changePercent: number };
-type LinkSettings = { url: string; name: string; key: string; iconData: string | null };
+type LinkSettings = { url: string; name: string; key: string; iconData: string | null; openMode: "modal" | "new_tab" };
 type Weather = { temperature: number; apparentTemperature: number; code: number; isDay: boolean; label: string; location: string };
 
 const links: LinkItem[] = [
@@ -30,7 +30,7 @@ const aiLinks = [
 
 const allLinkItems = [...links, ...aiLinks];
 const defaultLinkOrder = allLinkItems.map((link) => link.id);
-const defaultLinkSettings: Record<string, LinkSettings> = Object.fromEntries(allLinkItems.map((link) => [link.id, { url: link.url, name: link.name, key: "key" in link ? String(link.key) : "AI", iconData: null }]));
+const defaultLinkSettings: Record<string, LinkSettings> = Object.fromEntries(allLinkItems.map((link) => [link.id, { url: link.url, name: link.name, key: "key" in link ? String(link.key) : "AI", iconData: null, openMode: "new_tab" }]));
 
 const azureIcon = { hex: "0078D4", path: "M22.379 23.343a1.62 1.62 0 0 0 1.536-2.14v.002L17.35 1.76A1.62 1.62 0 0 0 15.816.657H8.184A1.62 1.62 0 0 0 6.65 1.76L.086 21.204a1.62 1.62 0 0 0 1.536 2.139h4.741a1.62 1.62 0 0 0 1.535-1.103l.977-2.892 4.947 3.675c.28.208.618.32.966.32m-3.084-12.531 3.624 10.739a.54.54 0 0 1-.51.713v-.001h-.03a.54.54 0 0 1-.322-.106l-9.287-6.9h4.853m6.313 7.006c.116-.326.13-.694.007-1.058L9.79 1.76a1.722 1.722 0 0 0-.007-.02h6.034a.54.54 0 0 1 .512.366l6.562 19.445a.54.54 0 0 1-.338.684" };
 const grokIcon = { hex: "000000", path: "M9.27 15.29l7.978-5.897c.391-.29.95-.177 1.137.272.98 2.369.542 5.215-1.41 7.169-1.951 1.954-4.667 2.382-7.149 1.406l-2.711 1.257c3.889 2.661 8.611 2.003 11.562-.953 2.341-2.344 3.066-5.539 2.388-8.42l.006.007c-.983-4.232.242-5.924 2.75-9.383.06-.082.12-.164.179-.248l-3.301 3.305v-.01L9.267 15.292M7.623 16.723c-2.792-2.67-2.31-6.801.071-9.184 1.761-1.763 4.647-2.483 7.166-1.425l2.705-1.25a7.808 7.808 0 00-1.829-1A8.975 8.975 0 005.984 5.83c-2.533 2.536-3.33 6.436-1.962 9.764 1.022 2.487-.653 4.246-2.34 6.022-.599.63-1.199 1.259-1.682 1.925l7.62-6.815" };
@@ -150,6 +150,7 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
   const [areLinksLoaded, setAreLinksLoaded] = useState(false);
   const [isReorderingLinks, setIsReorderingLinks] = useState(false);
   const [linkMessage, setLinkMessage] = useState("");
+  const [modalLinkId, setModalLinkId] = useState<string | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const calendarTouchStart = useRef<{ x: number; y: number } | null>(null);
 
@@ -184,6 +185,7 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
         setIsPanelOpen(false);
         setIsEditingLinks(false);
         setIsWatchlistOpen(false);
+        setModalLinkId(null);
         searchRef.current?.blur();
       }
     };
@@ -237,7 +239,7 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
       });
       const data = await readApiResponse(response);
       if (!response.ok) throw new Error(data.error || "Unable to save link");
-      const saved = { url: data.url, name: data.name, key: data.key, iconData: data.iconData ?? null };
+      const saved: LinkSettings = { url: data.url, name: data.name, key: data.key, iconData: data.iconData ?? null, openMode: data.openMode === "modal" ? "modal" : "new_tab" };
       setLinkSettings((current) => ({ ...current, [id]: saved }));
       setDraftLinkSettings((current) => ({ ...current, [id]: saved }));
       setHiddenLinkIds((current) => current.filter((linkId) => linkId !== id));
@@ -432,7 +434,14 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
         </div>
         <div className={`launch-grid${areLinksLoaded ? "" : " is-loading"}`} aria-busy={!areLinksLoaded}>
           {areLinksLoaded ? allLinkItems.filter((item) => !hiddenLinkIds.includes(item.id)).sort((a, b) => linkOrder.indexOf(a.id) - linkOrder.indexOf(b.id)).map((item) => (
-            <a className={`launch-card ${item.tone}`} href={linkSettings[item.id].url} target="_blank" rel="noopener noreferrer" key={item.id}>
+            <a
+              className={`launch-card ${item.tone}`}
+              href={linkSettings[item.id].url}
+              target={linkSettings[item.id].openMode === "new_tab" ? "_blank" : undefined}
+              rel={linkSettings[item.id].openMode === "new_tab" ? "noopener noreferrer" : undefined}
+              onClick={linkSettings[item.id].openMode === "modal" ? (event) => { event.preventDefault(); setModalLinkId(item.id); } : undefined}
+              key={item.id}
+            >
               <SiteMark key={`${linkSettings[item.id].url}-${Boolean(linkSettings[item.id].iconData)}`} url={linkSettings[item.id].url} monogram={linkSettings[item.id].key} customIcon={linkSettings[item.id].iconData} />
               <strong>{linkSettings[item.id].name}</strong>
             </a>
@@ -563,6 +572,13 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
                     <input id={`name-${item.id}`} aria-label={`${item.name} title`} className="link-name-input" value={draftLinkSettings[item.id].name} maxLength={40} placeholder="Title" onChange={(event) => setDraftLinkSettings((current) => ({ ...current, [item.id]: { ...current[item.id], name: event.target.value } }))} />
                     {"key" in item && <input aria-label={`${item.name} letter`} className="link-key-input" value={draftLinkSettings[item.id].key} maxLength={5} placeholder="Icon" onChange={(event) => setDraftLinkSettings((current) => ({ ...current, [item.id]: { ...current[item.id], key: event.target.value.toUpperCase() } }))} />}
                     <input id={`url-${item.id}`} aria-label={`${item.name} URL`} className="link-url-input" type="url" value={draftLinkSettings[item.id].url} placeholder="https://" onChange={(event) => setDraftLinkSettings((current) => ({ ...current, [item.id]: { ...current[item.id], url: event.target.value } }))} />
+                    <label className="link-open-field">
+                      <span>Open in</span>
+                      <select aria-label={`Where to open ${item.name}`} value={draftLinkSettings[item.id].openMode} onChange={(event) => setDraftLinkSettings((current) => ({ ...current, [item.id]: { ...current[item.id], openMode: event.target.value as LinkSettings["openMode"] } }))}>
+                        <option value="modal">AJHub modal</option>
+                        <option value="new_tab">New tab</option>
+                      </select>
+                    </label>
                     <div className="icon-upload-field">
                       <span className="icon-upload-preview" aria-hidden="true">
                         {draftLinkSettings[item.id].iconData
@@ -599,6 +615,21 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
               <span role="status">{linkMessage}</span>
               <button type="button" onClick={() => setIsEditingLinks(false)}>Done</button>
             </footer>
+          </section>
+        </div>
+      )}
+
+      {modalLinkId && linkSettings[modalLinkId] && (
+        <div className="link-viewer-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setModalLinkId(null); }}>
+          <section className="link-viewer" role="dialog" aria-modal="true" aria-labelledby="link-viewer-title">
+            <header>
+              <div><span>AJHub</span><h2 id="link-viewer-title">{linkSettings[modalLinkId].name}</h2></div>
+              <div className="link-viewer-actions">
+                <a href={linkSettings[modalLinkId].url} target="_blank" rel="noopener noreferrer">Open in new tab ↗</a>
+                <button type="button" aria-label={`Close ${linkSettings[modalLinkId].name}`} onClick={() => setModalLinkId(null)}>×</button>
+              </div>
+            </header>
+            <iframe src={linkSettings[modalLinkId].url} title={linkSettings[modalLinkId].name} />
           </section>
         </div>
       )}
