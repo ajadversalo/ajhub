@@ -128,8 +128,51 @@ actions tied to the current ChatGPT user. Leave public content anonymous.
 
 - `npm run dev`: start local development
 - `npm run build`: verify the vinext build output
+- `npm run cloudflare:check`: build and validate the Cloudflare Worker bundle without deploying
+- `npm run cloudflare:dev`: build and run the production Worker locally
+- `npm run cloudflare:deploy`: build and deploy to Cloudflare Workers
 - `npm test`: build the starter and verify its rendered loading skeleton
 - `npm run db:generate`: generate Drizzle migrations after schema changes
+
+## Deploy to Cloudflare Workers
+
+The app uses dynamic pages and API routes, so deploy it to the Cloudflare
+Workers Free plan rather than as a static-only Pages export.
+
+1. Sign in to Cloudflare once:
+
+   ```bash
+   npx wrangler login
+   ```
+
+2. Add the production secrets. Run each command and paste the corresponding
+   value when prompted:
+
+   ```bash
+   npx wrangler secret put TURSO_DATABASE_URL
+   npx wrangler secret put TURSO_AUTH_TOKEN
+   npx wrangler secret put GOOGLE_CLIENT_ID
+   npx wrangler secret put GOOGLE_CLIENT_SECRET
+   npx wrangler secret put GOOGLE_ALLOWED_EMAILS
+   npx wrangler secret put AUTH_SECRET
+   ```
+
+3. Validate the Worker bundle, then deploy it:
+
+   ```bash
+   npm run cloudflare:check
+   npm run cloudflare:deploy
+   ```
+
+4. Add the deployed callback URL to the Google OAuth application's authorized
+   redirect URIs:
+
+   ```text
+   https://<your-worker-or-custom-domain>/api/auth/google/callback
+   ```
+
+   Set `GOOGLE_REDIRECT_URI` as another Worker secret only when the callback
+   origin cannot be inferred from the incoming request.
 
 ## Learn More
 

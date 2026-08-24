@@ -12,8 +12,11 @@ const { d1, r2 } = hostingConfig;
 const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === "seatbelt";
 
 const localBindingConfig = {
+  name: "ajhub",
   main: "./worker/index.ts",
+  compatibility_date: "2026-08-24",
   compatibility_flags: ["nodejs_compat"],
+  images: { binding: "IMAGES" },
   d1_databases: d1
     ? [
         {
