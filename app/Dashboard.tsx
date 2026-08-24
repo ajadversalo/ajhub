@@ -151,6 +151,7 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
   const [isReorderingLinks, setIsReorderingLinks] = useState(false);
   const [linkMessage, setLinkMessage] = useState("");
   const [modalLinkId, setModalLinkId] = useState<string | null>(null);
+  const [modalRefreshKey, setModalRefreshKey] = useState(0);
   const searchRef = useRef<HTMLInputElement>(null);
   const calendarTouchStart = useRef<{ x: number; y: number } | null>(null);
 
@@ -637,6 +638,9 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
             <header>
               <h2 id="link-viewer-title">{linkSettings[modalLinkId].name}</h2>
               <div className="link-viewer-actions">
+                <button className="link-viewer-refresh" type="button" aria-label={`Refresh ${linkSettings[modalLinkId].name}`} title="Refresh" onClick={() => setModalRefreshKey((key) => key + 1)}>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.34 5.66M20 4v7h-7" /></svg>
+                </button>
                 <a href={linkSettings[modalLinkId].url} target="_blank" rel="noopener noreferrer" aria-label="Open in new tab" title="Open in new tab">
                   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 5h5v5M19 5l-8 8M17 13v6H5V7h6" /></svg>
                 </a>
@@ -644,7 +648,7 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
               </div>
             </header>
             <div className="link-viewer-frame">
-              <iframe src={linkSettings[modalLinkId].url} title={linkSettings[modalLinkId].name} />
+              <iframe key={`${modalLinkId}-${modalRefreshKey}`} src={linkSettings[modalLinkId].url} title={linkSettings[modalLinkId].name} />
             </div>
           </section>
         </div>
