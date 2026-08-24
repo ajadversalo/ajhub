@@ -563,7 +563,7 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
 
       {isEditingLinks && (
         <div className="link-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setIsEditingLinks(false); }}>
-          <section className="link-modal" role="dialog" aria-modal="true" aria-labelledby="link-modal-title">
+          <section className="link-modal launchpad-settings-modal" role="dialog" aria-modal="true" aria-labelledby="link-modal-title">
             <header>
               <div><span>Launchpad settings</span><h2 id="link-modal-title">Edit URLs</h2></div>
               <button className="link-modal-close" type="button" aria-label="Close URL editor" onClick={() => setIsEditingLinks(false)}>×</button>
@@ -571,11 +571,19 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
             <div className="link-modal-body">
               {allLinkItems.filter((item) => !hiddenLinkIds.includes(item.id)).sort((a, b) => linkOrder.indexOf(a.id) - linkOrder.indexOf(b.id)).map((item, index, orderedItems) => (
                 <div className="link-modal-row" key={item.id}>
-                  <label htmlFor={`name-${item.id}`}>{linkSettings[item.id].name}</label>
                   <div className={`link-fields ${"key" in item ? "" : "ai-fields"}`}>
-                    <input id={`name-${item.id}`} aria-label={`${item.name} title`} className="link-name-input" value={draftLinkSettings[item.id].name} maxLength={40} placeholder="Title" onChange={(event) => setDraftLinkSettings((current) => ({ ...current, [item.id]: { ...current[item.id], name: event.target.value } }))} />
-                    {"key" in item && <input aria-label={`${item.name} letter`} className="link-key-input" value={draftLinkSettings[item.id].key} maxLength={5} placeholder="Icon" onChange={(event) => setDraftLinkSettings((current) => ({ ...current, [item.id]: { ...current[item.id], key: event.target.value.toUpperCase() } }))} />}
-                    <input id={`url-${item.id}`} aria-label={`${item.name} URL`} className="link-url-input" type="url" value={draftLinkSettings[item.id].url} placeholder="https://" onChange={(event) => setDraftLinkSettings((current) => ({ ...current, [item.id]: { ...current[item.id], url: event.target.value } }))} />
+                    <label className="link-input-field">
+                      <span>Name</span>
+                      <input id={`name-${item.id}`} aria-label={`${item.name} title`} className="link-name-input" value={draftLinkSettings[item.id].name} maxLength={40} placeholder="Title" onChange={(event) => setDraftLinkSettings((current) => ({ ...current, [item.id]: { ...current[item.id], name: event.target.value } }))} />
+                    </label>
+                    {"key" in item && <label className="link-input-field link-key-field">
+                      <span>Mark</span>
+                      <input aria-label={`${item.name} letter`} className="link-key-input" value={draftLinkSettings[item.id].key} maxLength={5} placeholder="Icon" onChange={(event) => setDraftLinkSettings((current) => ({ ...current, [item.id]: { ...current[item.id], key: event.target.value.toUpperCase() } }))} />
+                    </label>}
+                    <label className="link-input-field link-url-field">
+                      <span>Destination URL</span>
+                      <input id={`url-${item.id}`} aria-label={`${item.name} URL`} className="link-url-input" type="url" value={draftLinkSettings[item.id].url} placeholder="https://" onChange={(event) => setDraftLinkSettings((current) => ({ ...current, [item.id]: { ...current[item.id], url: event.target.value } }))} />
+                    </label>
                     <label className="link-open-field">
                       <span>Open in</span>
                       <select aria-label={`Where to open ${item.name}`} value={draftLinkSettings[item.id].openMode} onChange={(event) => setDraftLinkSettings((current) => ({ ...current, [item.id]: { ...current[item.id], openMode: event.target.value as LinkSettings["openMode"] } }))}>
