@@ -10,7 +10,6 @@ interface Env {
   GOOGLE_CLIENT_ID?: string;
   GOOGLE_CLIENT_SECRET?: string;
   GOOGLE_REDIRECT_URI?: string;
-  
   TURSO_AUTH_TOKEN?: string;
   TURSO_DATABASE_URL?: string;
   IMAGES: {
