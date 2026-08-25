@@ -93,7 +93,16 @@ export function allowedEmail(email: string): boolean {
 export function googleConfig() {
   const clientId = process.env.GOOGLE_CLIENT_ID?.trim();
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET?.trim();
-  if (!clientId || !clientSecret || !authSecret()) return null;
+  const sessionSecret = authSecret();
+  if (!clientId || !clientSecret || !sessionSecret) {
+    const missing = [
+      !clientId && "GOOGLE_CLIENT_ID",
+      !clientSecret && "GOOGLE_CLIENT_SECRET",
+      !sessionSecret && "AUTH_SECRET (missing or shorter than 32 bytes)",
+    ].filter(Boolean);
+    console.error("Google auth configuration unavailable", { missing });
+    return null;
+  }
   return { clientId, clientSecret };
 }
 
