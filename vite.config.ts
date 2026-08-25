@@ -14,6 +14,7 @@ const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === "seatbelt";
 const localBindingConfig = {
   name: "ajhub",
   main: "./worker/index.ts",
+  keep_vars: true,
   compatibility_date: "2026-08-24",
   compatibility_flags: ["nodejs_compat"],
   images: { binding: "IMAGES" },
