@@ -582,7 +582,6 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
                     </span>
                     <span className="launchpad-link-copy">
                       <strong>{draftLinkSettings[item.id].name || "Untitled link"}</strong>
-                      <small>{draftLinkSettings[item.id].url || "No destination URL"}</small>
                     </span>
                     <span className="launchpad-link-mode">{draftLinkSettings[item.id].openMode === "modal" ? "AJHub modal" : "New tab"}</span>
                     <span className="launchpad-link-number">{String(index + 1).padStart(2, "0")}</span>
