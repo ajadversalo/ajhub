@@ -6,9 +6,19 @@ import { PublicCardsEditor } from "./PublicCardsEditor";
 import { SiteHeader } from "./SiteHeader";
 
 type LinkItem = { id: string; name: string; url: string; key: string; tone: string };
-type MarketQuote = { symbol: string; name: string; price: number; change: number; changePercent: number };
 type LinkSettings = { url: string; name: string; key: string; iconData: string | null; openMode: "modal" | "new_tab" };
 type Weather = { temperature: number; apparentTemperature: number; code: number; isDay: boolean; label: string; location: string };
+type CurrencyAmount = { usd: number; cad: number };
+type PortfolioSummary = {
+  accountName: string;
+  updatedAt: string;
+  netValue: CurrencyAmount;
+  remainingCapital: CurrencyAmount;
+  deployedCapital: CurrencyAmount;
+  optionLiabilities: CurrencyAmount;
+  totalCreditUsd: number;
+  positionCount: number;
+};
 
 const links: LinkItem[] = [
   { id: "mail", name: "Mail", url: "https://mail.google.com", key: "M", tone: "coral" },
@@ -132,14 +142,9 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
   const [searchedQuery, setSearchedQuery] = useState("");
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [isDashboardCollapsed, setIsDashboardCollapsed] = useState(false);
-  const [markets, setMarkets] = useState<MarketQuote[]>([]);
-  const [marketStatus, setMarketStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [portfolio, setPortfolio] = useState<PortfolioSummary | null>(null);
+  const [portfolioStatus, setPortfolioStatus] = useState<"loading" | "ready" | "error">("loading");
   const [weather, setWeather] = useState<Weather | null>(null);
-  const [watchlist, setWatchlist] = useState(["^GSPC", "^DJI", "^IXIC", "^RUT"]);
-  const [draftWatchlist, setDraftWatchlist] = useState(["^GSPC", "^DJI", "^IXIC", "^RUT"]);
-  const [isWatchlistOpen, setIsWatchlistOpen] = useState(false);
-  const [isSavingWatchlist, setIsSavingWatchlist] = useState(false);
-  const [watchlistMessage, setWatchlistMessage] = useState("");
   const [linkSettings, setLinkSettings] = useState<Record<string, LinkSettings>>(defaultLinkSettings);
   const [draftLinkSettings, setDraftLinkSettings] = useState<Record<string, LinkSettings>>(defaultLinkSettings);
   const [isEditingLinks, setIsEditingLinks] = useState(false);
@@ -185,7 +190,6 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
       if (event.key === "Escape") {
         setIsPanelOpen(false);
         setIsEditingLinks(false);
-        setIsWatchlistOpen(false);
         setModalLinkId(null);
         searchRef.current?.blur();
       }
@@ -311,51 +315,20 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
 
   useEffect(() => {
     let active = true;
-    async function loadMarkets() {
+    async function loadPortfolio() {
       try {
-        const response = await fetch("/api/markets");
-        if (!response.ok) throw new Error("Market data unavailable");
-        const data = await response.json();
-        if (active) { setMarkets(data.quotes); setMarketStatus("ready"); }
+        const response = await fetch("/api/portfolio-summary", { cache: "no-store" });
+        if (!response.ok) throw new Error("Portfolio summary unavailable");
+        const data = await response.json() as PortfolioSummary;
+        if (active) { setPortfolio(data); setPortfolioStatus("ready"); }
       } catch {
-        if (active) setMarketStatus("error");
+        if (active) setPortfolioStatus("error");
       }
     }
-    loadMarkets();
-    const refresh = window.setInterval(loadMarkets, 300000);
+    loadPortfolio();
+    const refresh = window.setInterval(loadPortfolio, 300000);
     return () => { active = false; window.clearInterval(refresh); };
   }, []);
-
-  useEffect(() => {
-    let active = true;
-    fetch("/api/watchlist", { cache: "no-store" })
-      .then((response) => response.ok ? response.json() : Promise.reject())
-      .then((data: { symbols: string[] }) => { if (active) { setWatchlist(data.symbols); setDraftWatchlist(data.symbols); } })
-      .catch(() => undefined);
-    return () => { active = false; };
-  }, []);
-
-  async function saveMarketWatchlist() {
-    setIsSavingWatchlist(true);
-    setWatchlistMessage("");
-    try {
-      const response = await fetch("/api/watchlist", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ symbols: draftWatchlist }) });
-      const data = await readApiResponse(response);
-      if (!response.ok) throw new Error(data.error || "Unable to save watchlist");
-      setWatchlist(data.symbols);
-      setDraftWatchlist(data.symbols);
-      setWatchlistMessage("Saved to Turso.");
-      setMarketStatus("loading");
-      const marketResponse = await fetch("/api/markets", { cache: "no-store" });
-      if (!marketResponse.ok) throw new Error("Saved, but quotes could not be refreshed");
-      const marketData = await readApiResponse(marketResponse);
-      setMarkets(marketData.quotes);
-      setMarketStatus("ready");
-    } catch (error) {
-      setWatchlistMessage(error instanceof Error ? error.message : "Unable to save watchlist.");
-      setMarketStatus("error");
-    } finally { setIsSavingWatchlist(false); }
-  }
 
   function search(event: FormEvent) {
     event.preventDefault();
@@ -455,28 +428,29 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
       </section>
 
       <section className="lower-grid">
-        <article className="project-card market-card">
+        <article className="project-card portfolio-card">
           <div className="section-heading">
-            <h2>Market snapshot</h2>
-            <div className="market-tools">
-              <span>{marketStatus === "ready" ? "LIVE · 5 MIN DELAY" : "MARKET DATA"}</span>
-              <button type="button" aria-label="Edit market watchlist" title="Edit watchlist" onClick={() => { setDraftWatchlist(watchlist); setWatchlistMessage(""); setIsWatchlistOpen(true); }}>
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4l11-11-4-4L4 16v4Zm13.5-16.5 3 3" /></svg>
-              </button>
-            </div>
+            <h2>Portfolio summary</h2>
+            <span>{portfolioStatus === "ready" ? "OPTIONS DATA" : "PORTFOLIO DATA"}</span>
           </div>
-          <div className="market-grid">
-            {marketStatus === "loading" && Array.from({ length: 4 }, (_, index) => <div className="market-item loading" key={index} />)}
-            {marketStatus === "error" && <div className="market-error">Market data is temporarily unavailable.</div>}
-            {markets.map((market) => (
-              <div className="market-item" key={market.symbol}>
-                <div><span>{market.symbol}</span><small>{market.name}</small></div>
-                <strong>{market.price.toLocaleString("en-US", { maximumFractionDigits: 2 })}</strong>
-                <b className={market.change >= 0 ? "up" : "down"}>{market.change >= 0 ? "+" : ""}{market.changePercent.toFixed(2)}%</b>
+          {portfolioStatus === "loading" && <div className="portfolio-loading" aria-label="Loading portfolio summary"><i /><i /><i /></div>}
+          {portfolioStatus === "error" && <div className="portfolio-error">Portfolio data is temporarily unavailable.</div>}
+          {portfolio && (
+            <div className="portfolio-summary">
+              <div className="portfolio-primary">
+                <span>{portfolio.accountName}</span>
+                <strong>${portfolio.netValue.usd.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                <small>USD · ${portfolio.netValue.cad.toLocaleString("en-CA", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} CAD</small>
               </div>
-            ))}
-          </div>
-          <p className="market-note">Indicative quotes for a quick glance. Not investment advice.</p>
+              <div className="portfolio-metrics">
+                <div><span>Available</span><strong>${portfolio.remainingCapital.usd.toLocaleString("en-US", { maximumFractionDigits: 0 })}</strong></div>
+                <div><span>Deployed</span><strong>${portfolio.deployedCapital.usd.toLocaleString("en-US", { maximumFractionDigits: 0 })}</strong></div>
+                <div><span>Credit</span><strong>${portfolio.totalCreditUsd.toLocaleString("en-US", { maximumFractionDigits: 0 })}</strong></div>
+                <div><span>Liabilities</span><strong>${portfolio.optionLiabilities.usd.toLocaleString("en-US", { maximumFractionDigits: 0 })}</strong></div>
+              </div>
+            </div>
+          )}
+          {portfolio && <p className="portfolio-note">{portfolio.positionCount} open positions · Updated {new Date(portfolio.updatedAt).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}</p>}
         </article>
 
         <aside className="commands calendar-card">
@@ -654,31 +628,6 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
         </div>
       )}
 
-      {isWatchlistOpen && (
-        <div className="link-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setIsWatchlistOpen(false); }}>
-          <section className="link-modal watchlist-modal" role="dialog" aria-modal="true" aria-labelledby="watchlist-modal-title">
-            <header>
-              <div><span>Market settings</span><h2 id="watchlist-modal-title">Edit watchlist</h2></div>
-              <button className="link-modal-close" type="button" aria-label="Close watchlist editor" onClick={() => setIsWatchlistOpen(false)}>×</button>
-            </header>
-            <div className="link-modal-body">
-              <p className="watchlist-help">Enter Yahoo Finance ticker symbols, such as AAPL, MSFT, BTC-USD, or ^GSPC.</p>
-              {draftWatchlist.map((symbol, index) => (
-                <div className="watchlist-row" key={index}>
-                  <label htmlFor={`ticker-${index}`}>Ticker {index + 1}</label>
-                  <input id={`ticker-${index}`} value={symbol} autoCapitalize="characters" onChange={(event) => setDraftWatchlist((current) => current.map((value, itemIndex) => itemIndex === index ? event.target.value.toUpperCase() : value))} />
-                  <button className="remove-ticker" type="button" aria-label={`Remove ${symbol || `ticker ${index + 1}`}`} disabled={draftWatchlist.length === 1} onClick={() => setDraftWatchlist((current) => current.filter((_, itemIndex) => itemIndex !== index))}>×</button>
-                </div>
-              ))}
-              {draftWatchlist.length < 8 && <button className="add-ticker" type="button" onClick={() => setDraftWatchlist((current) => [...current, ""])}>+ Add ticker</button>}
-            </div>
-            <footer className="link-modal-footer">
-              <span role="status">{watchlistMessage}</span>
-              <button type="button" disabled={isSavingWatchlist || draftWatchlist.some((symbol) => !symbol.trim())} onClick={saveMarketWatchlist}>{isSavingWatchlist ? "Saving…" : "Save watchlist"}</button>
-            </footer>
-          </section>
-        </div>
-      )}
     </main>
   );
 }

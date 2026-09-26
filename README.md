@@ -49,11 +49,14 @@ GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=your-client-secret
 GOOGLE_ALLOWED_EMAILS=you@example.com
 AUTH_SECRET=a-long-random-secret-at-least-32-bytes
+OPTIONS_DASHBOARD_URL=https://options.ajhub.ca
 ```
 
 Separate multiple allowed emails with commas. Access is denied when the
 allowlist is empty. For a deployment whose public origin cannot be inferred
 from the request, set `GOOGLE_REDIRECT_URI` to the full callback URL above.
+`OPTIONS_DASHBOARD_URL` is optional and controls the options project used for
+the dashboard's portfolio summary.
 
 ## Included Shape
 

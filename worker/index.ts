@@ -12,6 +12,7 @@ interface Env {
   GOOGLE_REDIRECT_URI?: string;
   TURSO_AUTH_TOKEN?: string;
   TURSO_DATABASE_URL?: string;
+  OPTIONS_DASHBOARD_URL?: string;
   IMAGES: {
     input(stream: ReadableStream): {
       transform(options: Record<string, unknown>): {
@@ -29,6 +30,7 @@ const runtimeEnvironmentKeys = [
   "GOOGLE_REDIRECT_URI",
   "TURSO_AUTH_TOKEN",
   "TURSO_DATABASE_URL",
+  "OPTIONS_DASHBOARD_URL",
 ] as const;
 
 function populateProcessEnvironment(env: Env) {
