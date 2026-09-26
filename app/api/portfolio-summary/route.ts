@@ -12,6 +12,7 @@ type RawPosition = {
   account_id?: string | null;
   strategy?: string;
   current_price?: number | null;
+  underlying_entry_price?: number | null;
   option_leg?: {
     option_type?: string | null;
     strike_price?: number | null;
@@ -103,6 +104,12 @@ export async function GET(request: Request) {
       const breakEven = typeof option.break_even_price === "number" && Number.isFinite(option.break_even_price)
         ? Number(option.break_even_price.toFixed(2))
         : null;
+      const entryPrice = typeof position.underlying_entry_price === "number" && Number.isFinite(position.underlying_entry_price) && position.underlying_entry_price > 0
+        ? position.underlying_entry_price
+        : null;
+      const trendChangePct = entryPrice && currentPrice > 0
+        ? Number((((currentPrice - entryPrice) / entryPrice) * 100).toFixed(2))
+        : null;
 
       return [{
         symbol: position.symbol,
@@ -111,6 +118,8 @@ export async function GET(request: Request) {
         currentPrice: Number(currentPrice.toFixed(2)),
         gap: Number((currentPrice - strike).toFixed(2)),
         breakEven,
+        trend: trendChangePct === null ? null : trendChangePct > 0 ? "up" : trendChangePct < 0 ? "down" : "flat",
+        trendChangePct,
       }];
     }).sort((left, right) => left.symbol.localeCompare(right.symbol));
 

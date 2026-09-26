@@ -15,6 +15,8 @@ type PositionSummary = {
   currentPrice: number;
   gap: number;
   breakEven: number | null;
+  trend: "up" | "down" | "flat" | null;
+  trendChangePct: number | null;
 };
 type PortfolioSummary = {
   updatedAt: string;
@@ -27,6 +29,15 @@ const formatExpiration = (value: string) => {
   const date = value.split("T")[0] ?? value;
   const [, month, day] = date.split("-");
   return month && day ? month + "/" + day : value;
+};
+
+const getTrendColor = (direction: PositionSummary["trend"], changePct: number | null) => {
+  if (!direction || changePct === null) return "#94a3b8";
+  const neutral = [148, 163, 184];
+  const target = direction === "up" ? [34, 197, 94] : direction === "down" ? [239, 68, 68] : neutral;
+  const intensity = Math.min(Math.max(Math.abs(changePct) / 8, 0.35), 1);
+  const channels = neutral.map((channel, index) => Math.round(channel + (target[index] - channel) * intensity));
+  return "rgb(" + channels.join(", ") + ")";
 };
 
 const links: LinkItem[] = [
@@ -438,31 +449,22 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
 
       <section className="lower-grid">
         <article className="project-card portfolio-card">
-          <div className="section-heading">
-            <h2>Position Summary</h2>
-          </div>
           {portfolioStatus === "loading" && <div className="portfolio-loading" aria-label="Loading position summary"><i /><i /><i /></div>}
           {portfolioStatus === "error" && <div className="portfolio-error">Portfolio data is temporarily unavailable.</div>}
           {portfolio && (
             <div className="position-summary-table-wrap">
-              <table className="position-summary-table">
-                <thead>
-                  <tr>
-                    <th className="position-direction-header" aria-hidden="true" />
-                    <th>Ticker</th>
-                    <th>Exp</th>
-                    <th>Current</th>
-                    <th>Gap</th>
-                    <th>Break-even</th>
-                  </tr>
-                </thead>
+              <table className="position-summary-table" aria-label="Open option positions">
                 <tbody>
                   {portfolio.positions.length === 0 ? (
                     <tr><td className="position-summary-empty" colSpan={6}>No open option positions.</td></tr>
                   ) : portfolio.positions.map((position) => (
                     <tr key={position.symbol + "-" + position.expiration + "-" + position.optionType}>
-                      <td className={"position-direction " + (position.optionType === "CALL" ? "call" : "put")} aria-label={position.optionType}>
-                        {position.optionType === "CALL" ? "↑" : "↓"}
+                      <td
+                        className={"position-direction " + (position.trend ?? "flat")}
+                        aria-label={position.trend ? position.trend : "No trend data"}
+                        style={{ color: getTrendColor(position.trend, position.trendChangePct) }}
+                      >
+                        {position.trend === "up" ? "↑" : position.trend === "down" ? "↓" : position.trend === "flat" ? "→" : "—"}
                       </td>
                       <td className="position-symbol">{position.symbol}</td>
                       <td className="position-expiration">{formatExpiration(position.expiration)}</td>

@@ -800,6 +800,67 @@ html,body,button,input,textarea,select,kbd,code{font-family:var(--font-dashboard
 .launchpad-settings-modal .link-row-actions{display:flex;align-items:center;gap:6px;padding-top:10px;border-top:1px solid var(--line)}.launchpad-settings-modal .reorder-buttons{display:flex;gap:5px}.launchpad-settings-modal .reorder-buttons button,.launchpad-settings-modal .link-row-actions>button{width:auto;height:30px;padding:0 11px;border:0;border-radius:9px;font-size:7px}.launchpad-settings-modal .reorder-buttons button{width:30px;padding:0;font-size:12px}.launchpad-settings-modal .link-row-actions>button:not(.delete-link){margin-left:auto}.launchpad-settings-modal .delete-link{background:transparent;color:#d56b5a}.launchpad-settings-modal .link-modal-footer{min-height:56px;padding:11px 18px;background:var(--surface)}
 @media(max-width:700px){.link-modal-backdrop:has(.launchpad-settings-modal){padding:0;align-items:end}.launchpad-settings-modal{width:100%;max-height:94dvh;border:0;border-radius:22px 22px 0 0}.launchpad-settings-modal>header{padding:15px 16px}.launchpad-settings-modal .link-modal-body{padding:10px}.launchpad-settings-modal .link-fields,.launchpad-settings-modal .link-fields.ai-fields{grid-template-columns:minmax(0,1fr) 64px}.launchpad-settings-modal .link-url-field,.launchpad-settings-modal .ai-fields .link-url-field{grid-column:1/-1}.launchpad-settings-modal .link-open-field{grid-column:1/-1}.launchpad-settings-modal .icon-upload-field{grid-column:1/-1;flex-wrap:wrap}.launchpad-settings-modal .icon-upload-field small{flex-basis:100%}}
 
+/* Redesigned launchpad editor: balanced fields, consistent cards, calmer controls. */
+.link-modal-backdrop:has(.launchpad-settings-modal){padding:24px;background:#08100bd9;backdrop-filter:blur(14px) saturate(.82)}
+.launchpad-settings-modal{width:min(1040px,calc(100vw - 48px));height:min(840px,calc(100dvh - 48px));max-height:none;grid-template-rows:auto minmax(0,1fr) auto;border:1px solid color-mix(in srgb,var(--ink) 10%,var(--line));border-radius:20px;background:var(--surface);box-shadow:0 30px 90px #0008;overflow:hidden}
+.launchpad-settings-modal>header{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:24px 28px 22px;border-bottom:1px solid var(--line);background:var(--surface)}
+.launchpad-settings-modal>header span{margin:0 0 8px;color:var(--green);font:700 9px/1 var(--font-geist-mono),monospace;letter-spacing:.14em;text-transform:uppercase}
+.launchpad-settings-modal>header h2{margin:0;color:var(--ink);font:560 30px/1 var(--font-geist-sans),sans-serif;letter-spacing:-.045em}
+.launchpad-settings-modal .link-modal-close{width:40px;height:40px;display:grid;place-items:center;flex:0 0 40px;border:0;border-radius:50%;background:var(--surface-2);color:var(--ink);font:400 20px/1 Arial,sans-serif}
+.launchpad-settings-modal .link-modal-close:hover{background:color-mix(in srgb,var(--surface-2) 72%,var(--ink));transform:none}
+.launchpad-settings-modal .link-modal-body{display:grid;align-content:start;gap:14px;min-height:0;padding:20px 24px 24px;background:var(--bg);overflow:auto;scrollbar-width:thin}
+.launchpad-settings-modal .link-modal-row{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;padding:18px;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:none}
+.launchpad-settings-modal .link-fields,.launchpad-settings-modal .link-fields.ai-fields{display:grid;grid-template-columns:minmax(0,1.05fr) 92px minmax(0,1.75fr);gap:14px 16px;align-items:end}
+.launchpad-settings-modal .link-fields.ai-fields{grid-template-columns:minmax(0,1.05fr) minmax(0,1.75fr)}
+.launchpad-settings-modal .link-input-field{min-width:0;display:grid;gap:7px;color:var(--muted);font:700 9px/1 var(--font-geist-mono),monospace;letter-spacing:.1em;text-transform:uppercase}
+.launchpad-settings-modal .link-input-field input{width:100%;height:42px;padding:0 13px;border:1px solid transparent;border-radius:10px;background:var(--surface-2);color:var(--ink);font:500 13px/1 var(--font-geist-sans),sans-serif;letter-spacing:0}
+.launchpad-settings-modal .link-input-field input:hover{background:color-mix(in srgb,var(--surface-2) 84%,var(--ink))}
+.launchpad-settings-modal .link-input-field input:focus{border-color:color-mix(in srgb,var(--green) 58%,transparent);box-shadow:0 0 0 3px color-mix(in srgb,var(--green) 12%,transparent)}
+.launchpad-settings-modal .link-key-field input{text-align:center;font-family:var(--font-geist-mono),monospace;font-weight:650;text-transform:uppercase}
+.launchpad-settings-modal .link-url-field{grid-column:auto}
+.launchpad-settings-modal .link-fields.ai-fields .link-url-field{grid-column:auto}
+.launchpad-settings-modal .link-open-field{grid-column:1;display:grid!important;align-content:end;gap:7px;color:var(--muted)!important;font:700 9px/1 var(--font-geist-mono),monospace!important;letter-spacing:.1em;text-transform:uppercase}
+.launchpad-settings-modal .link-open-field select{width:100%;height:42px;padding:0 12px;border:1px solid transparent;border-radius:10px;background:var(--surface-2);color:var(--ink);font:500 12px/1 var(--font-geist-sans),sans-serif;outline:0}
+.launchpad-settings-modal .link-open-field select:focus{border-color:color-mix(in srgb,var(--green) 58%,transparent);box-shadow:0 0 0 3px color-mix(in srgb,var(--green) 12%,transparent)}
+.launchpad-settings-modal .icon-upload-field{grid-column:2/4;display:flex;align-items:center;gap:9px;min-width:0;margin:0;padding:0}
+.launchpad-settings-modal .link-fields.ai-fields .icon-upload-field{grid-column:2}
+.launchpad-settings-modal .icon-upload-preview{width:42px;height:42px;display:grid;place-items:center;flex:0 0 42px;border:0;border-radius:10px;background:var(--surface-2);color:var(--muted);font:650 11px/1 var(--font-geist-mono),monospace}
+.launchpad-settings-modal .icon-upload-button,.launchpad-settings-modal .remove-icon{height:42px;display:inline-flex;align-items:center;justify-content:center;padding:0 14px;border:0;border-radius:10px;background:var(--charcoal);color:#fff;cursor:pointer;font:700 9px/1 var(--font-geist-mono),monospace;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.launchpad-settings-modal .icon-upload-button:hover{background:color-mix(in srgb,var(--charcoal) 86%,var(--green))}
+.launchpad-settings-modal .remove-icon{background:var(--surface-2);color:#d56b5a}
+.launchpad-settings-modal .icon-upload-field small{min-width:0;overflow:hidden;color:var(--muted);font:500 10px/1.25 var(--font-geist-mono),monospace;letter-spacing:0;text-overflow:ellipsis;white-space:nowrap}
+.launchpad-settings-modal .link-row-actions{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:8px;margin:0;padding-top:14px;border-top:1px solid var(--line)}
+.launchpad-settings-modal .reorder-buttons{display:flex;gap:7px}
+.launchpad-settings-modal .reorder-buttons button,.launchpad-settings-modal .link-row-actions>button{width:auto;height:34px;min-width:34px;padding:0 12px;border:0;border-radius:9px;background:var(--surface-2);color:var(--ink);font:700 9px/1 var(--font-geist-mono),monospace;letter-spacing:.07em;text-transform:uppercase}
+.launchpad-settings-modal .reorder-buttons button{font-size:15px;letter-spacing:0}
+.launchpad-settings-modal .link-row-actions>button:not(.delete-link){margin-left:0}
+.launchpad-settings-modal .link-row-actions>button:disabled,.launchpad-settings-modal .reorder-buttons button:disabled{opacity:.38}
+.launchpad-settings-modal .link-row-actions .delete-link{min-width:70px;background:transparent;color:#d56b5a}
+.launchpad-settings-modal .link-row-actions .delete-link:hover{background:#d56b5a16}
+.launchpad-settings-modal .deleted-links{padding:6px 0 0}
+.launchpad-settings-modal .link-modal-footer{display:flex;align-items:center;justify-content:space-between;gap:18px;min-height:70px;margin:0;padding:14px 24px;border-top:1px solid var(--line);background:var(--surface)}
+.launchpad-settings-modal .link-modal-footer span{min-width:0;overflow:hidden;color:var(--muted);font:500 10px/1.3 var(--font-geist-mono),monospace;text-overflow:ellipsis;white-space:nowrap}
+.launchpad-settings-modal .link-modal-footer button{height:38px;min-width:88px;padding:0 18px;border:0;border-radius:10px;background:var(--charcoal);color:#fff;font:700 9px/1 var(--font-geist-mono),monospace;letter-spacing:.1em;text-transform:uppercase}
+.launchpad-settings-modal .link-modal-footer button:hover{background:color-mix(in srgb,var(--charcoal) 86%,var(--green))}
+[data-theme="dark"] .launchpad-settings-modal{border-color:#3a403e;background:#292d2c}
+[data-theme="dark"] .launchpad-settings-modal>header,[data-theme="dark"] .launchpad-settings-modal .link-modal-footer{background:#292d2c}
+[data-theme="dark"] .launchpad-settings-modal .link-modal-body{background:#1d201f}
+[data-theme="dark"] .launchpad-settings-modal .link-modal-row{background:#292d2c;border-color:#3a403e}
+[data-theme="dark"] .launchpad-settings-modal .link-input-field input,[data-theme="dark"] .launchpad-settings-modal .link-open-field select,[data-theme="dark"] .launchpad-settings-modal .icon-upload-preview{background:#343938}
+@media(max-width:760px){
+  .link-modal-backdrop:has(.launchpad-settings-modal){padding:0}
+  .launchpad-settings-modal{width:100%;height:94dvh;border:0;border-radius:20px 20px 0 0}
+  .launchpad-settings-modal>header{padding:20px 18px}
+  .launchpad-settings-modal>header h2{font-size:26px}
+  .launchpad-settings-modal .link-modal-body{padding:14px}
+  .launchpad-settings-modal .link-modal-row{padding:14px}
+  .launchpad-settings-modal .link-fields,.launchpad-settings-modal .link-fields.ai-fields{grid-template-columns:minmax(0,1fr) 78px}
+  .launchpad-settings-modal .link-url-field,.launchpad-settings-modal .link-fields.ai-fields .link-url-field{grid-column:1/-1}
+  .launchpad-settings-modal .link-open-field,.launchpad-settings-modal .link-fields.ai-fields .link-open-field{grid-column:1/-1}
+  .launchpad-settings-modal .icon-upload-field,.launchpad-settings-modal .link-fields.ai-fields .icon-upload-field{grid-column:1/-1}
+  .launchpad-settings-modal .icon-upload-field small{flex:1}
+}
+
 .link-viewer-actions .link-viewer-refresh svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 
 /* Final portfolio-summary cascade. */
@@ -821,24 +882,26 @@ html,body,button,input,textarea,select,kbd,code{font-family:var(--font-dashboard
 @media(max-width:600px){.portfolio-card{min-height:240px}}
 
 /* Position summary table. */
-.portfolio-card{min-height:0;padding:24px;background:#fff;color:#0b1b33;border:1px solid #dbe2eb;border-radius:12px;box-shadow:0 6px 20px #2030470a}
-.portfolio-card .section-heading{padding-bottom:15px}
-.portfolio-card .section-heading h2{font-size:25px;font-weight:700;letter-spacing:-.035em;color:#0b1b33}
-.position-summary-table-wrap{overflow-x:auto;border-top:1px solid var(--line)}
+.portfolio-card{min-height:0;padding:18px;background:#fff;color:#0b1b33;border:1px solid #dbe2eb;border-radius:12px;box-shadow:0 6px 20px #2030470a}
+.portfolio-card .section-heading{padding-bottom:11px}
+.portfolio-card .section-heading h2{font-size:19px;font-weight:700;letter-spacing:-.035em;color:#0b1b33}
+.position-summary-table-wrap{overflow-x:auto;border-top:0}
 .position-summary-table{width:100%;min-width:560px;border-collapse:collapse;table-layout:fixed}
-.position-summary-table th{padding:16px 0 14px;color:#5f748e;font-size:13px;font-weight:750;letter-spacing:.1em;text-align:left;text-transform:uppercase;white-space:nowrap}
-.position-summary-table td{padding:13px 0;border-top:1px solid #8993a033;color:var(--ink);font-size:17px;white-space:nowrap}
+.position-summary-table tbody tr:first-child td{border-top:0}
+.position-summary-table th{padding:10px 0 9px;color:#5f748e;font-size:10px;font-weight:750;letter-spacing:.1em;text-align:left;text-transform:uppercase;white-space:nowrap}
+.position-summary-table td{padding:9px 0;border-top:1px solid #8993a033;color:var(--ink);font-size:13px;white-space:nowrap}
 .position-summary-table th:nth-child(1),.position-summary-table td:nth-child(1){width:26px}
 .position-summary-table th:nth-child(2),.position-summary-table td:nth-child(2){width:22%}
 .position-summary-table th:nth-child(3),.position-summary-table td:nth-child(3){width:16%}
 .position-summary-table th:nth-child(4),.position-summary-table td:nth-child(4){width:21%;text-align:right}
 .position-summary-table th:nth-child(5),.position-summary-table td:nth-child(5){width:18%;text-align:right}
 .position-summary-table th:nth-child(6),.position-summary-table td:nth-child(6){width:23%;text-align:right}
-.position-summary-table .position-symbol{font-size:20px;font-weight:750;color:#0b1b33}
+.position-summary-table .position-symbol{font-size:15px;font-weight:750;color:#0b1b33}
 .position-summary-table .position-expiration{color:#5f748e}
-.position-direction{font-size:26px!important;font-weight:400!important;line-height:1}
-.position-direction.call{color:#38aeb7!important}
-.position-direction.put{color:#e4879b!important}
+.position-direction{font-size:20px!important;font-weight:400!important;line-height:1}
+.position-direction.up{color:#22c55e!important}
+.position-direction.down{color:#ef4444!important}
+.position-direction.flat{color:#94a3b8!important}
 .position-gap.positive{color:#0083aa!important}
 .position-gap.negative{color:#e4879b!important}
 .position-summary-empty{text-align:center!important;color:var(--muted)!important;font-size:12px!important}
@@ -850,10 +913,10 @@ html,body,button,input,textarea,select,kbd,code{font-family:var(--font-dashboard
 [data-theme="dark"] .portfolio-card{background:#151817;color:var(--ink);border-color:var(--line);box-shadow:none}
 [data-theme="dark"] .portfolio-card .section-heading h2{color:var(--ink)}
 @media(max-width:600px){
-  .portfolio-card{padding:21px}
-  .portfolio-card .section-heading h2{font-size:22px}
+  .portfolio-card{padding:15px}
+  .portfolio-card .section-heading h2{font-size:18px}
   .position-summary-table{min-width:520px}
-  .position-summary-table th{font-size:11px}
-  .position-summary-table td{font-size:15px}
-  .position-summary-table .position-symbol{font-size:18px}
+  .position-summary-table th{font-size:9px}
+  .position-summary-table td{font-size:12px}
+  .position-summary-table .position-symbol{font-size:14px}
 }
