@@ -1113,3 +1113,26 @@ html,body,button,input,textarea,select,kbd,code{font-family:var(--font-dashboard
 .launchpad-editor .launchpad-link-copy{display:block}
 .launchpad-editor .launchpad-link-copy strong{display:block}
 .launchpad-editor .launchpad-link-copy small{display:none}
+
+/* Refined launchpad composition: compact, name-led rows instead of stretched strips. */
+.launchpad-editor{width:min(760px,calc(100vw - 32px));height:min(700px,calc(100dvh - 32px));border-radius:18px}
+.launchpad-editor .launchpad-editor-header{padding:19px 22px 17px}
+.launchpad-editor .launchpad-editor-heading h2{font-size:20px;letter-spacing:-.035em}
+.launchpad-editor .launchpad-editor-heading p{font-size:9px}
+.launchpad-editor .launchpad-editor-header-meta>span{display:none}
+.launchpad-editor .launchpad-editor-body{gap:7px;padding:12px 18px 14px!important}
+.launchpad-editor .launchpad-link-item{border-radius:10px}
+.launchpad-editor .launchpad-link-trigger{grid-template-columns:36px minmax(0,1fr) 24px;width:100%;height:60px;min-height:60px;gap:11px;padding:10px 12px}
+.launchpad-editor .launchpad-link-mark{width:36px;height:36px;border-radius:8px}
+.launchpad-editor .launchpad-link-mode,.launchpad-editor .launchpad-link-number{display:none}
+.launchpad-editor .launchpad-link-copy{align-self:center}
+.launchpad-editor .launchpad-link-copy strong{font-size:12px;line-height:1}
+.launchpad-editor .launchpad-link-chevron{width:24px;height:24px;font-size:16px}
+.launchpad-editor .launchpad-link-panel{padding:0 12px 12px}
+.launchpad-editor .launchpad-detail-empty{min-height:270px}
+.launchpad-editor .launchpad-editor-footer{min-height:54px;padding-block:10px}
+@media(max-width:700px){
+  .launchpad-editor{width:100%;height:92dvh;border-radius:18px 18px 0 0}
+  .launchpad-editor .launchpad-editor-header{padding:17px 16px 15px}
+  .launchpad-editor .launchpad-editor-body{padding:10px!important}
+}

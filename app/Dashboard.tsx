@@ -374,6 +374,8 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
     else update();
   }
 
+  const editableLinkItems = allLinkItems.filter((item) => !hiddenLinkIds.includes(item.id)).sort((a, b) => linkOrder.indexOf(a.id) - linkOrder.indexOf(b.id));
+
   return (
     <main className={isDashboardCollapsed ? "dashboard-collapsed" : ""}>
       <div className="ambient one" />
