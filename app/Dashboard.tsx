@@ -175,6 +175,7 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
   const [areLinksLoaded, setAreLinksLoaded] = useState(false);
   const [isReorderingLinks, setIsReorderingLinks] = useState(false);
   const [linkMessage, setLinkMessage] = useState("");
+  const [expandedLinkId, setExpandedLinkId] = useState<string | null>(null);
   const [modalLinkId, setModalLinkId] = useState<string | null>(null);
   const [modalRefreshKey, setModalRefreshKey] = useState(0);
   const searchRef = useRef<HTMLInputElement>(null);
@@ -421,7 +422,7 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
           <h2>Launchpad</h2>
           <div className="link-tools">
             <PublicCardsEditor />
-            <button className="edit-links-button" type="button" aria-label="Edit launchpad links" title="Edit links" onClick={() => { setIsEditingLinks((value) => !value); setDraftLinkSettings(linkSettings); setLinkMessage(""); }}>
+            <button className="edit-links-button" type="button" aria-label="Edit launchpad links" title="Edit links" onClick={() => { setIsEditingLinks((value) => !value); setExpandedLinkId(null); setDraftLinkSettings(linkSettings); setLinkMessage(""); }}>
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4l11-11-4-4L4 16v4Zm13.5-16.5 3 3" /></svg>
             </button>
           </div>
@@ -571,7 +572,17 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
             </header>
             <div className="link-modal-body">
               {allLinkItems.filter((item) => !hiddenLinkIds.includes(item.id)).sort((a, b) => linkOrder.indexOf(a.id) - linkOrder.indexOf(b.id)).map((item, index, orderedItems) => (
-                <div className="link-modal-row" key={item.id}>
+                <div className={`link-modal-row${expandedLinkId === item.id ? " is-expanded" : ""}`} key={item.id}>
+                  <button className="link-row-summary" type="button" aria-expanded={expandedLinkId === item.id} aria-controls={`link-details-${item.id}`} onClick={() => setExpandedLinkId((current) => current === item.id ? null : item.id)}>
+                    <span className="link-row-summary-mark" aria-hidden="true">{draftLinkSettings[item.id].key || "•"}</span>
+                    <span className="link-row-summary-copy">
+                      <strong>{draftLinkSettings[item.id].name || "Untitled link"}</strong>
+                      <small>{draftLinkSettings[item.id].url || "No destination URL"}</small>
+                    </span>
+                    <span className="link-row-summary-mode">{draftLinkSettings[item.id].openMode === "modal" ? "AJHub modal" : "New tab"}</span>
+                    <span className="link-row-summary-chevron" aria-hidden="true">+</span>
+                  </button>
+                  {expandedLinkId === item.id && <div className="link-row-details" id={`link-details-${item.id}`}>
                   <div className={`link-fields ${"key" in item ? "" : "ai-fields"}`}>
                     <label className="link-input-field">
                       <span>Name</span>
@@ -615,6 +626,7 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
                   </button>
                   <button className="delete-link" type="button" disabled={savingLink === item.id || deletingLink === item.id} onClick={() => deleteLink(item.id)}>Delete</button>
                   </div>
+                  </div>}
                 </div>
               ))}
               {hiddenLinkIds.length > 0 && (
