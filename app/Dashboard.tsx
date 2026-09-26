@@ -573,9 +573,9 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
               <div className="launchpad-editor-header-meta"><span>{allLinkItems.filter((item) => !hiddenLinkIds.includes(item.id)).length} active</span><button className="link-modal-close" type="button" aria-label="Close URL editor" onClick={() => setIsEditingLinks(false)}>×</button></div>
             </header>
             <div className="link-modal-body launchpad-editor-body">
-              {allLinkItems.filter((item) => !hiddenLinkIds.includes(item.id)).sort((a, b) => linkOrder.indexOf(a.id) - linkOrder.indexOf(b.id)).map((item, index, orderedItems) => (
+              {allLinkItems.filter((item) => !hiddenLinkIds.includes(item.id)).sort((a, b) => linkOrder.indexOf(a.id) - linkOrder.indexOf(b.id)).map((item) => (
                 <article className={`launchpad-link-item${expandedLinkId === item.id ? " is-expanded" : ""}`} key={item.id}>
-                  <button className="launchpad-link-trigger" type="button" aria-expanded={expandedLinkId === item.id} aria-controls={`link-details-${item.id}`} onClick={() => setExpandedLinkId((current) => current === item.id ? null : item.id)}>
+                  <button className="launchpad-link-trigger" type="button" aria-expanded={expandedLinkId === item.id} aria-controls={expandedLinkId === item.id ? `link-details-${item.id}` : undefined} onClick={() => setExpandedLinkId((current) => current === item.id ? null : item.id)}>
                     <span className="launchpad-link-mark" aria-hidden="true">
                       {draftLinkSettings[item.id].iconData
                         // eslint-disable-next-line @next/next/no-img-element
@@ -585,8 +585,6 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
                     <span className="launchpad-link-copy">
                       <strong>{draftLinkSettings[item.id].name || "Untitled link"}</strong>
                     </span>
-                    <span className="launchpad-link-mode">{draftLinkSettings[item.id].openMode === "modal" ? "AJHub modal" : "New tab"}</span>
-                    <span className="launchpad-link-number">{String(index + 1).padStart(2, "0")}</span>
                     <span className="launchpad-link-chevron" aria-hidden="true">+</span>
                   </button>
                   {expandedLinkId === item.id && <div className="launchpad-link-panel" id={`link-details-${item.id}`}>
