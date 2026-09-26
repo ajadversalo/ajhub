@@ -2,24 +2,23 @@ import { getRequestUser } from "@/app/auth";
 
 const DEFAULT_OPTIONS_DASHBOARD_URL = "https://options.ajhub.ca";
 
-type CurrencyAmount = { usd: number; cad: number };
-type RawCurrencyAmount = Partial<CurrencyAmount> | null | undefined;
-
 type RawAccountSummary = {
   broker?: string;
-  net_value?: RawCurrencyAmount;
-  option_liabilities?: RawCurrencyAmount;
-  remaining_capital?: RawCurrencyAmount;
-  deployed_capital?: RawCurrencyAmount;
 };
 
 type RawPosition = {
+  symbol?: string;
   account?: string | null;
   account_id?: string | null;
+  strategy?: string;
+  current_price?: number | null;
   option_leg?: {
+    option_type?: string | null;
+    strike_price?: number | null;
+    short_strike_price?: number | null;
+    expiration_date?: string | null;
     quantity?: number | null;
-    avg_price?: number | null;
-    net_credit?: number | null;
+    break_even_price?: number | null;
   } | null;
 };
 
@@ -29,11 +28,6 @@ type PositionsPayload = {
   account_totals?: Record<string, RawAccountSummary>;
   broker_totals?: Record<string, RawAccountSummary>;
 };
-
-const readCurrency = (value: RawCurrencyAmount): CurrencyAmount => ({
-  usd: typeof value?.usd === "number" && Number.isFinite(value.usd) ? value.usd : 0,
-  cad: typeof value?.cad === "number" && Number.isFinite(value.cad) ? value.cad : 0,
-});
 
 const normalize = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, "");
 
@@ -96,23 +90,33 @@ export async function GET(request: Request) {
 
     const account = getOptionsAccount(payload);
     const positions = (payload.positions ?? []).filter((position) => positionBelongsToOptions(position, account));
-    const totalCreditUsd = positions.reduce((total, position) => {
+    const summaryPositions = positions.flatMap((position) => {
       const option = position.option_leg;
-      if (!option) return total;
-      const credit = option.net_credit ?? option.avg_price ?? 0;
-      const contracts = Math.abs(option.quantity ?? 0);
-      return total + credit * contracts * 100;
-    }, 0);
+      if (!option || !position.symbol || !option.expiration_date) return [];
+
+      const currentPrice = typeof position.current_price === "number" && Number.isFinite(position.current_price)
+        ? position.current_price
+        : 0;
+      const strike = position.strategy === "PUT_CREDIT_SPREAD"
+        ? option.short_strike_price ?? option.strike_price ?? 0
+        : option.strike_price ?? 0;
+      const breakEven = typeof option.break_even_price === "number" && Number.isFinite(option.break_even_price)
+        ? Number(option.break_even_price.toFixed(2))
+        : null;
+
+      return [{
+        symbol: position.symbol,
+        optionType: option.option_type === "CALL" ? "CALL" : "PUT",
+        expiration: option.expiration_date,
+        currentPrice: Number(currentPrice.toFixed(2)),
+        gap: Number((currentPrice - strike).toFixed(2)),
+        breakEven,
+      }];
+    }).sort((left, right) => left.symbol.localeCompare(right.symbol));
 
     return Response.json({
-      accountName: account?.broker ?? "Options Portfolio",
       updatedAt: payload.updated_at ?? new Date().toISOString(),
-      netValue: readCurrency(account?.net_value),
-      remainingCapital: readCurrency(account?.remaining_capital),
-      deployedCapital: readCurrency(account?.deployed_capital),
-      optionLiabilities: readCurrency(account?.option_liabilities),
-      totalCreditUsd: Number(totalCreditUsd.toFixed(2)),
-      positionCount: positions.length,
+      positions: summaryPositions,
     }, {
       headers: { "Cache-Control": "private, max-age=60, stale-while-revalidate=240" },
     });

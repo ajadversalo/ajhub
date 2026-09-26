@@ -8,16 +8,25 @@ import { SiteHeader } from "./SiteHeader";
 type LinkItem = { id: string; name: string; url: string; key: string; tone: string };
 type LinkSettings = { url: string; name: string; key: string; iconData: string | null; openMode: "modal" | "new_tab" };
 type Weather = { temperature: number; apparentTemperature: number; code: number; isDay: boolean; label: string; location: string };
-type CurrencyAmount = { usd: number; cad: number };
+type PositionSummary = {
+  symbol: string;
+  optionType: "CALL" | "PUT";
+  expiration: string;
+  currentPrice: number;
+  gap: number;
+  breakEven: number | null;
+};
 type PortfolioSummary = {
-  accountName: string;
   updatedAt: string;
-  netValue: CurrencyAmount;
-  remainingCapital: CurrencyAmount;
-  deployedCapital: CurrencyAmount;
-  optionLiabilities: CurrencyAmount;
-  totalCreditUsd: number;
-  positionCount: number;
+  positions: PositionSummary[];
+};
+
+const formatDollars = (value: number | null) => value === null ? "—" : "$" + value.toFixed(2);
+const formatSignedDollars = (value: number) => (value >= 0 ? "+" : "−") + "$" + Math.abs(value).toFixed(2);
+const formatExpiration = (value: string) => {
+  const date = value.split("T")[0] ?? value;
+  const [, month, day] = date.split("-");
+  return month && day ? month + "/" + day : value;
 };
 
 const links: LinkItem[] = [
@@ -430,27 +439,42 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
       <section className="lower-grid">
         <article className="project-card portfolio-card">
           <div className="section-heading">
-            <h2>Portfolio summary</h2>
-            <span>{portfolioStatus === "ready" ? "OPTIONS DATA" : "PORTFOLIO DATA"}</span>
+            <h2>Position Summary</h2>
           </div>
-          {portfolioStatus === "loading" && <div className="portfolio-loading" aria-label="Loading portfolio summary"><i /><i /><i /></div>}
+          {portfolioStatus === "loading" && <div className="portfolio-loading" aria-label="Loading position summary"><i /><i /><i /></div>}
           {portfolioStatus === "error" && <div className="portfolio-error">Portfolio data is temporarily unavailable.</div>}
           {portfolio && (
-            <div className="portfolio-summary">
-              <div className="portfolio-primary">
-                <span>{portfolio.accountName}</span>
-                <strong>${portfolio.netValue.usd.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
-                <small>USD · ${portfolio.netValue.cad.toLocaleString("en-CA", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} CAD</small>
-              </div>
-              <div className="portfolio-metrics">
-                <div><span>Available</span><strong>${portfolio.remainingCapital.usd.toLocaleString("en-US", { maximumFractionDigits: 0 })}</strong></div>
-                <div><span>Deployed</span><strong>${portfolio.deployedCapital.usd.toLocaleString("en-US", { maximumFractionDigits: 0 })}</strong></div>
-                <div><span>Credit</span><strong>${portfolio.totalCreditUsd.toLocaleString("en-US", { maximumFractionDigits: 0 })}</strong></div>
-                <div><span>Liabilities</span><strong>${portfolio.optionLiabilities.usd.toLocaleString("en-US", { maximumFractionDigits: 0 })}</strong></div>
-              </div>
+            <div className="position-summary-table-wrap">
+              <table className="position-summary-table">
+                <thead>
+                  <tr>
+                    <th className="position-direction-header" aria-hidden="true" />
+                    <th>Ticker</th>
+                    <th>Exp</th>
+                    <th>Current</th>
+                    <th>Gap</th>
+                    <th>Break-even</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {portfolio.positions.length === 0 ? (
+                    <tr><td className="position-summary-empty" colSpan={6}>No open option positions.</td></tr>
+                  ) : portfolio.positions.map((position) => (
+                    <tr key={position.symbol + "-" + position.expiration + "-" + position.optionType}>
+                      <td className={"position-direction " + (position.optionType === "CALL" ? "call" : "put")} aria-label={position.optionType}>
+                        {position.optionType === "CALL" ? "↑" : "↓"}
+                      </td>
+                      <td className="position-symbol">{position.symbol}</td>
+                      <td className="position-expiration">{formatExpiration(position.expiration)}</td>
+                      <td>{formatDollars(position.currentPrice)}</td>
+                      <td className={"position-gap " + (position.gap >= 0 ? "positive" : "negative")}>{formatSignedDollars(position.gap)}</td>
+                      <td>{formatDollars(position.breakEven)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
-          {portfolio && <p className="portfolio-note">{portfolio.positionCount} open positions · Updated {new Date(portfolio.updatedAt).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}</p>}
         </article>
 
         <aside className="commands calendar-card">
