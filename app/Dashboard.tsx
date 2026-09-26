@@ -565,24 +565,30 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
 
       {isEditingLinks && (
         <div className="link-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setIsEditingLinks(false); }}>
-          <section className="link-modal launchpad-settings-modal" role="dialog" aria-modal="true" aria-labelledby="link-modal-title">
-            <header>
-              <div><span>Launchpad settings</span><h2 id="link-modal-title">Edit URLs</h2></div>
-              <button className="link-modal-close" type="button" aria-label="Close URL editor" onClick={() => setIsEditingLinks(false)}>×</button>
+          <section className="link-modal launchpad-settings-modal launchpad-editor" role="dialog" aria-modal="true" aria-labelledby="link-modal-title">
+            <header className="launchpad-editor-header">
+              <div className="launchpad-editor-heading"><span>Launchpad / links</span><h2 id="link-modal-title">Manage your shortcuts</h2><p>Choose a link to edit its details.</p></div>
+              <div className="launchpad-editor-header-meta"><span>{allLinkItems.filter((item) => !hiddenLinkIds.includes(item.id)).length} active</span><button className="link-modal-close" type="button" aria-label="Close URL editor" onClick={() => setIsEditingLinks(false)}>×</button></div>
             </header>
-            <div className="link-modal-body">
+            <div className="link-modal-body launchpad-editor-body">
               {allLinkItems.filter((item) => !hiddenLinkIds.includes(item.id)).sort((a, b) => linkOrder.indexOf(a.id) - linkOrder.indexOf(b.id)).map((item, index, orderedItems) => (
-                <div className={`link-modal-row${expandedLinkId === item.id ? " is-expanded" : ""}`} key={item.id}>
-                  <button className="link-row-summary" type="button" aria-expanded={expandedLinkId === item.id} aria-controls={`link-details-${item.id}`} onClick={() => setExpandedLinkId((current) => current === item.id ? null : item.id)}>
-                    <span className="link-row-summary-mark" aria-hidden="true">{draftLinkSettings[item.id].key || "•"}</span>
-                    <span className="link-row-summary-copy">
+                <article className={`launchpad-link-item${expandedLinkId === item.id ? " is-expanded" : ""}`} key={item.id}>
+                  <button className="launchpad-link-trigger" type="button" aria-expanded={expandedLinkId === item.id} aria-controls={`link-details-${item.id}`} onClick={() => setExpandedLinkId((current) => current === item.id ? null : item.id)}>
+                    <span className="launchpad-link-mark" aria-hidden="true">
+                      {draftLinkSettings[item.id].iconData
+                        // eslint-disable-next-line @next/next/no-img-element
+                        ? <img src={draftLinkSettings[item.id].iconData!} alt="" />
+                        : draftLinkSettings[item.id].key || "•"}
+                    </span>
+                    <span className="launchpad-link-copy">
                       <strong>{draftLinkSettings[item.id].name || "Untitled link"}</strong>
                       <small>{draftLinkSettings[item.id].url || "No destination URL"}</small>
                     </span>
-                    <span className="link-row-summary-mode">{draftLinkSettings[item.id].openMode === "modal" ? "AJHub modal" : "New tab"}</span>
-                    <span className="link-row-summary-chevron" aria-hidden="true">+</span>
+                    <span className="launchpad-link-mode">{draftLinkSettings[item.id].openMode === "modal" ? "AJHub modal" : "New tab"}</span>
+                    <span className="launchpad-link-number">{String(index + 1).padStart(2, "0")}</span>
+                    <span className="launchpad-link-chevron" aria-hidden="true">+</span>
                   </button>
-                  {expandedLinkId === item.id && <div className="link-row-details" id={`link-details-${item.id}`}>
+                  {expandedLinkId === item.id && <div className="launchpad-link-panel" id={`link-details-${item.id}`}>
                   <div className={`link-fields ${"key" in item ? "" : "ai-fields"}`}>
                     <label className="link-input-field">
                       <span>Name</span>
@@ -616,7 +622,7 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
                       <small>PNG, JPEG or WebP · 256 KB max</small>
                     </div>
                   </div>
-                  <div className="link-row-actions">
+                  <div className="link-row-actions launchpad-link-actions">
                   <div className="reorder-buttons">
                     <button type="button" aria-label={`Move ${linkSettings[item.id].name} up`} disabled={isReorderingLinks || index === 0} onClick={() => moveLink(item.id, -1)}>↑</button>
                     <button type="button" aria-label={`Move ${linkSettings[item.id].name} down`} disabled={isReorderingLinks || index === orderedItems.length - 1} onClick={() => moveLink(item.id, 1)}>↓</button>
@@ -626,19 +632,19 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
                   </button>
                   <button className="delete-link" type="button" disabled={savingLink === item.id || deletingLink === item.id} onClick={() => deleteLink(item.id)}>Delete</button>
                   </div>
-                  </div>}
-                </div>
+                   </div>}
+                </article>
               ))}
               {hiddenLinkIds.length > 0 && (
-                <div className="deleted-links">
-                  <span>Deleted cards</span>
+                <div className="deleted-links launchpad-deleted-links">
+                  <span>Hidden links</span>
                   {hiddenLinkIds.map((id) => <button type="button" disabled={savingLink === id} onClick={() => saveLink(id)} key={id}>{savingLink === id ? "Restoring..." : `Restore ${linkSettings[id]?.name ?? id}`}</button>)}
                 </div>
               )}
             </div>
-            <footer className="link-modal-footer">
+            <footer className="link-modal-footer launchpad-editor-footer">
               <span role="status">{linkMessage}</span>
-              <button type="button" onClick={() => setIsEditingLinks(false)}>Done</button>
+              <button type="button" onClick={() => { setExpandedLinkId(null); setIsEditingLinks(false); }}>Done</button>
             </footer>
           </section>
         </div>
