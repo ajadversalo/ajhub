@@ -6,7 +6,7 @@ const defaultLinks = [
   ["calendar", "Calendar", "C", "https://calendar.google.com"],
   ["github", "GitHub", "G", "https://github.com"],
   ["drive", "Drive", "D", "https://drive.google.com"],
-  ["portfolio", "Portfolio", "P", "https://portfolio.ajhub.ca"],
+  ["portfolio", "Azure", "AZ", "https://portal.azure.com/"],
   ["linkedin", "LinkedIn", "IN", "https://linkedin.com"],
   ["youtube", "YouTube", "YT", "https://youtube.com"],
   ["maps", "Maps", "MAP", "https://maps.google.com"],
@@ -54,6 +54,10 @@ async function ensureLinksTable() {
     sql: "UPDATE launchpad_links SET sort_order = ? WHERE id = ? AND sort_order IS NULL",
     args: [index, id],
   })), "write");
+  await db.execute({
+    sql: "UPDATE launchpad_links SET url = ? WHERE id = ? AND (url = ? OR url = ?)",
+    args: ["https://portal.azure.com/", "portfolio", "https://portfolio.ajhub.ca", "https://portfolio.ajhub.ca/"],
+  });
   return db;
 }
 

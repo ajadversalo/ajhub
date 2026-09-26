@@ -45,7 +45,7 @@ const links: LinkItem[] = [
   { id: "calendar", name: "Calendar", url: "https://calendar.google.com", key: "C", tone: "blue" },
   { id: "github", name: "GitHub", url: "https://github.com", key: "G", tone: "ink" },
   { id: "drive", name: "Drive", url: "https://drive.google.com", key: "D", tone: "green" },
-  { id: "portfolio", name: "Portfolio", url: "https://portfolio.ajhub.ca", key: "P", tone: "yellow" },
+  { id: "portfolio", name: "Azure", url: "https://portal.azure.com/", key: "AZ", tone: "yellow" },
   { id: "linkedin", name: "LinkedIn", url: "https://linkedin.com", key: "IN", tone: "sky" },
   { id: "youtube", name: "YouTube", url: "https://youtube.com", key: "YT", tone: "red" },
   { id: "maps", name: "Maps", url: "https://maps.google.com", key: "MAP", tone: "sand" },
