@@ -213,7 +213,7 @@ export default function LaunchpadSettings({ user }: { user: { name: string; emai
     <main className="launchpad-page">
       <SiteHeader user={user} />
       <div className="launchpad-page-shell">
-        <header className="launchpad-page-header">
+        <header className="launchpad-page-header" hidden>
           <div><a className="launchpad-back-link" href="/">← Dashboard</a><span className="launchpad-page-eyebrow">Launchpad / links</span><h1>Manage your shortcuts</h1><p>Choose a link to edit its details.</p></div>
           <div className="launchpad-page-meta"><span>{orderedItems.length} active</span><a href="/">Done</a></div>
         </header>
