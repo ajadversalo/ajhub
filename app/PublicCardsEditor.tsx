@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { SiteHeader } from "./SiteHeader";
 
 type EditablePublicCard = {
   slot: number;
