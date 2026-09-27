@@ -424,7 +424,7 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
           <h2>Launchpad</h2>
           <div className="link-tools">
             <PublicCardsEditor />
-            <button className="edit-links-button" type="button" aria-label="Edit launchpad links" title="Edit links" onClick={() => { setIsEditingLinks((value) => !value); setExpandedLinkId(null); setDraftLinkSettings(linkSettings); setLinkMessage(""); }}>
+            <button className="edit-links-button" type="button" aria-label="Manage launchpad links" title="Manage links" onClick={() => window.location.assign("/launchpad")}>
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4l11-11-4-4L4 16v4Zm13.5-16.5 3 3" /></svg>
             </button>
           </div>
@@ -565,7 +565,7 @@ export default function Dashboard({ user }: { user: { name: string; email: strin
         </div>
       </aside>
 
-      {isEditingLinks && (
+      {false && isEditingLinks && (
         <div className="link-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setIsEditingLinks(false); }}>
           <section className="link-modal launchpad-settings-modal launchpad-editor" role="dialog" aria-modal="true" aria-labelledby="link-modal-title">
             <header className="launchpad-editor-header">
