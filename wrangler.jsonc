@@ -3,7 +3,7 @@
   "name": "ajhub",
   "main": "./worker/index.ts",
   "keep_vars": true,
-  "compatibility_date": "2026-08-24",
+  "compatibility_date": "2026-05-22",
   "compatibility_flags": ["nodejs_compat"],
   "assets": {
     "directory": "dist/client",

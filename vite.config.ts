@@ -15,8 +15,7 @@ const localBindingConfig = {
   name: "ajhub",
   main: "./worker/index.ts",
   keep_vars: true,
-  compatibility_date: "2026-08-24",
-  compatibility_flags: ["nodejs_compat"],
+  compatibility_date: "2026-05-22",
   images: { binding: "IMAGES" },
   d1_databases: d1
     ? [
