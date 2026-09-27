@@ -55,6 +55,8 @@ export default function LaunchpadSettings({ user }: { user: { name: string; emai
   const [savingLink, setSavingLink] = useState<string | null>(null);
   const [deletingLink, setDeletingLink] = useState<string | null>(null);
   const [isReorderingLinks, setIsReorderingLinks] = useState(false);
+  const [draggedLinkId, setDraggedLinkId] = useState<string | null>(null);
+  const [dragOverLinkId, setDragOverLinkId] = useState<string | null>(null);
   const [linkMessage, setLinkMessage] = useState("");
 
   useEffect(() => {
@@ -175,6 +177,33 @@ export default function LaunchpadSettings({ user }: { user: { name: string; emai
     }
   }
 
+  async function reorderLink(draggedId: string, targetId: string) {
+    if (draggedId === targetId || isReorderingLinks) return;
+    const visibleIds = linkOrder.filter((linkId) => !hiddenLinkIds.includes(linkId));
+    const sourceIndex = visibleIds.indexOf(draggedId);
+    const targetIndex = visibleIds.indexOf(targetId);
+    if (sourceIndex < 0 || targetIndex < 0) return;
+    const nextVisibleIds = [...visibleIds];
+    nextVisibleIds.splice(sourceIndex, 1);
+    nextVisibleIds.splice(targetIndex, 0, draggedId);
+    const nextOrder = [...nextVisibleIds, ...linkOrder.filter((linkId) => hiddenLinkIds.includes(linkId))];
+    const previousOrder = linkOrder;
+    setLinkOrder(nextOrder);
+    setDragOverLinkId(null);
+    setIsReorderingLinks(true);
+    try {
+      const response = await fetch("/api/links", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids: nextOrder }) });
+      const data = await readApiResponse(response);
+      if (!response.ok) throw new Error(data.error || "Unable to reorder links");
+      setLinkMessage("Link order saved.");
+    } catch (error) {
+      setLinkOrder(previousOrder);
+      setLinkMessage(error instanceof Error ? error.message : "Unable to reorder links.");
+    } finally {
+      setIsReorderingLinks(false);
+    }
+  }
+
   function renderDetails() {
     if (!selectedItem || !selectedDraft || !selectedSaved) {
       return <div className="launchpad-detail-empty"><span>Select a shortcut</span><p>Choose a link from the list to edit its details.</p></div>;
@@ -224,7 +253,7 @@ export default function LaunchpadSettings({ user }: { user: { name: string; emai
               {orderedItems.map((item, index) => {
                 const settings = draftLinkSettings[item.id];
                 const isSelected = selectedLinkId === item.id;
-                return <button className={`launchpad-list-row${isSelected ? " is-selected" : ""}`} type="button" key={item.id} onClick={() => { setSelectedLinkId(item.id); setLinkMessage(""); }} aria-pressed={isSelected}>
+                return <button className={`launchpad-list-row${isSelected ? " is-selected" : ""}${dragOverLinkId === item.id ? " is-drag-over" : ""}`} type="button" key={item.id} draggable={!isReorderingLinks} onClick={() => { setSelectedLinkId(item.id); setLinkMessage(""); }} onDragStart={(event) => { setDraggedLinkId(item.id); event.dataTransfer.effectAllowed = "move"; event.dataTransfer.setData("text/plain", item.id); }} onDragOver={(event) => { event.preventDefault(); if (draggedLinkId && draggedLinkId !== item.id) { event.dataTransfer.dropEffect = "move"; setDragOverLinkId(item.id); } }} onDrop={(event) => { event.preventDefault(); const sourceId = draggedLinkId ?? event.dataTransfer.getData("text/plain"); if (sourceId) void reorderLink(sourceId, item.id); setDraggedLinkId(null); }} onDragEnd={() => { setDraggedLinkId(null); setDragOverLinkId(null); }} aria-pressed={isSelected} aria-grabbed={draggedLinkId === item.id}>
                   <span className={`launchpad-list-mark ${item.tone}`}>{settings.iconData ? <img src={settings.iconData} alt="" /> : settings.key}</span>
                   <span className="launchpad-list-copy"><strong>{settings.name || "Untitled link"}</strong><small>{settings.url}</small></span>
                   <span className="launchpad-list-mode">{settings.openMode === "modal" ? "AJHub modal" : "New tab"}</span>
