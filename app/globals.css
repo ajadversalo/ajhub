@@ -1153,10 +1153,13 @@ html,body,button,input,textarea,select,kbd,code{font-family:var(--font-dashboard
 .launchpad-page-shell,.launchpad-page-shell *{border-radius:2px!important}
 
 /* Match the reference date typography across the entire launchpad page. */
-.launchpad-page-shell,.launchpad-page-shell *{font-family:var(--font-geist-mono),monospace!important;font-size:14px!important}
+.launchpad-page-shell,.launchpad-page-shell *{font-family:var(--font-geist-mono),monospace!important;font-size:9px!important}
 .launchpad-page-shell,.launchpad-page-shell *{text-transform:none!important}
 .launchpad-page-shell .launchpad-list-heading{display:none}
 .launchpad-page-shell .launchpad-list-items{padding-top:0}
+.launchpad-page-shell .launchpad-hidden-links{display:none!important}
+.launchpad-page-shell .launchpad-list-row{grid-template-columns:42px minmax(0,1fr) auto 24px}
+.launchpad-page-shell .launchpad-list-arrow{display:none}
 .launchpad-page-shell .launchpad-detail-fields,.launchpad-page-shell .launchpad-detail-fields.ai-fields{display:flex;flex-direction:column;gap:14px}
 .launchpad-page-shell .launchpad-detail-fields .link-url-field,.launchpad-page-shell .launchpad-detail-fields .link-open-field,.launchpad-page-shell .launchpad-detail-fields .icon-upload-field{grid-column:auto}
 .launchpad-page-shell .launchpad-detail-fields .icon-upload-field{padding-top:0}
