@@ -1170,6 +1170,23 @@ html,body,button,input,textarea,select,kbd,code{font-family:var(--font-dashboard
 .launchpad-page-shell .launchpad-detail-fields .link-url-field,.launchpad-page-shell .launchpad-detail-fields .link-open-field,.launchpad-page-shell .launchpad-detail-fields .icon-upload-field{grid-column:auto}
 .launchpad-page-shell .launchpad-detail-fields .icon-upload-field{padding-top:0}
 
+/* Standalone public-card editor page. */
+.public-cards-page{max-width:none;min-height:100dvh;padding-inline:clamp(18px,4vw,64px);background:var(--bg);color:var(--ink)}
+.public-cards-page-shell{width:min(1220px,100%);margin:0 auto;padding-bottom:34px}
+.public-card-editor-page-backdrop{position:fixed;z-index:10;inset:82px 0 0;display:block;overflow:auto;padding:0 clamp(18px,4vw,64px);background:var(--bg);backdrop-filter:none}
+.public-card-editor-page-backdrop .public-card-editor{width:min(1220px,100%);height:auto;min-height:calc(100% - 34px);max-height:none;margin:0 auto;border:0;border-radius:2px;background:transparent;box-shadow:none;overflow:visible}
+.public-card-editor-page-backdrop .public-card-editor>header{padding:28px 0 22px;border-bottom:1px solid var(--line);background:transparent}
+.public-card-editor-page-backdrop .public-card-editor>header h2{font:600 14px/1 var(--font-geist-mono),monospace;letter-spacing:0}
+.public-card-editor-page-backdrop .public-card-editor>header span{font:600 9px/1 var(--font-geist-mono),monospace;letter-spacing:.1em;color:var(--green)}
+.public-card-editor-page-backdrop .public-card-editor-close{border-radius:2px;background:var(--surface-2);color:var(--ink)}
+.public-card-editor-page-backdrop .public-card-editor-body{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:20px 0;background:transparent;overflow:visible}
+.public-card-editor-page-backdrop .public-card-editor-row{gap:10px;padding:14px;border:1px solid var(--line);border-radius:2px;background:var(--surface);box-shadow:none}
+.public-card-editor-page-backdrop .public-card-editor-row,.public-card-editor-page-backdrop .public-card-editor-row *{font-family:var(--font-geist-mono),monospace;font-size:9px}
+.public-card-editor-page-backdrop .public-card-editor-row input,.public-card-editor-page-backdrop .public-card-editor-row textarea{border-radius:2px;background:var(--surface-2);font-size:9px}
+.public-card-editor-page-backdrop .public-card-editor-actions button,.public-card-editor-page-backdrop .public-card-editor>footer button{border-radius:2px;font-size:9px}
+.public-card-editor-page-backdrop .public-card-editor>footer{min-height:54px;padding:14px 0;border-top:1px solid var(--line);background:transparent;font-size:9px}
+@media(max-width:800px){.public-card-editor-page-backdrop{inset:72px 0 0;padding-inline:15px}.public-card-editor-page-backdrop .public-card-editor-body{grid-template-columns:1fr}}
+
 /* Accordion launchpad editor: show the link list first, then reveal one detail panel. */
 .launchpad-settings-modal .link-modal-body{grid-template-columns:1fr;gap:8px;padding:12px 16px 16px}
 .launchpad-settings-modal .link-modal-row{display:block;padding:0;border-radius:12px;overflow:hidden;border-color:var(--line);background:var(--surface);transition:border-color .18s,box-shadow .18s}

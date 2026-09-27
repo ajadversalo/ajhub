@@ -21,15 +21,15 @@ const emptyCards = () => Array.from({ length: 9 }, (_, index) => ({
   iconData: null,
 }));
 
-export function PublicCardsEditor() {
-  const [isOpen, setIsOpen] = useState(false);
+export function PublicCardsEditor({ standalone = false }: { standalone?: boolean } = {}) {
+  const [isOpen, setIsOpen] = useState(standalone);
   const [cards, setCards] = useState<EditablePublicCard[]>(emptyCards);
   const [savingSlot, setSavingSlot] = useState<number | null>(null);
   const [message, setMessage] = useState("");
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || standalone) return;
     let active = true;
     fetch("/api/public-cards", { cache: "no-store" })
       .then((response) => response.json())
@@ -124,11 +124,11 @@ export function PublicCardsEditor() {
 
   return (
     <>
-      <button className="public-cards-edit-button" type="button" onClick={() => { setMessage(""); setIsOpen(true); }} aria-label="Edit public cards" title="Edit public cards">
+      {!standalone && <a className="public-cards-edit-button" href="/public-cards" aria-label="Edit public cards" title="Edit public cards">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h4v4H5V5Zm10 0h4v4h-4V5ZM5 15h4v4H5v-4Zm10 0h4v4h-4v-4Z" /></svg>
-      </button>
+      </a>}
       {isOpen && createPortal(
-        <div className="public-card-editor-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setIsOpen(false); }}>
+        <div className={`public-card-editor-backdrop${standalone ? " public-card-editor-page-backdrop" : ""}`} role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setIsOpen(false); }}>
           <section className="public-card-editor" role="dialog" aria-modal="true" aria-labelledby="public-card-editor-title">
             <header>
               <div><span>Public page</span><h2 id="public-card-editor-title">Expanded cards</h2></div>
