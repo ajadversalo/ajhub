@@ -21,9 +21,10 @@ const emptyCards = () => Array.from({ length: 9 }, (_, index) => ({
   iconData: null,
 }));
 
-export function PublicCardsEditor({ standalone = false }: { standalone?: boolean } = {}) {
+export function PublicCardsEditor({ standalone = false, user }: { standalone?: boolean; user?: { email: string } } = {}) {
   const [isOpen, setIsOpen] = useState(standalone);
   const [cards, setCards] = useState<EditablePublicCard[]>(emptyCards);
+  const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
   const [savingSlot, setSavingSlot] = useState<number | null>(null);
   const [message, setMessage] = useState("");
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -120,6 +121,69 @@ export function PublicCardsEditor({ standalone = false }: { standalone?: boolean
     } finally {
       setSavingSlot(null);
     }
+  }
+
+  function renderStandaloneDetails(card: EditablePublicCard) {
+    const isSaving = savingSlot === card.slot;
+    return (
+      <form className="public-cards-detail-form" onSubmit={(event) => saveCard(event, card)}>
+        <div className="public-cards-detail-topline"><span>Editing card</span><strong>{String(card.slot).padStart(2, "0")}</strong></div>
+        <div className="public-cards-detail-fields">
+          <label>Title<input value={card.title} maxLength={80} onChange={(event) => updateCard(card.slot, "title", event.target.value)} /></label>
+          <label>URL<input type="url" value={card.url} maxLength={2048} placeholder="https://" onChange={(event) => updateCard(card.slot, "url", event.target.value)} /></label>
+          <label>Description<textarea value={card.description} maxLength={280} rows={4} onChange={(event) => updateCard(card.slot, "description", event.target.value)} /></label>
+          <label>Tech stack<input value={card.techStack} maxLength={200} placeholder="React, TypeScript, Cloudflare" onChange={(event) => updateCard(card.slot, "techStack", event.target.value)} /></label>
+        </div>
+        <div className="public-cards-detail-icon">
+          <span className="public-card-icon-preview" aria-hidden="true">
+            {card.iconData
+              // eslint-disable-next-line @next/next/no-img-element
+              ? <img src={card.iconData} alt="" />
+              : String(card.slot).padStart(2, "0")}
+          </span>
+          <label className="public-card-icon-upload" htmlFor={`public-card-page-icon-${card.slot}`}>Upload icon</label>
+          <input id={`public-card-page-icon-${card.slot}`} className="icon-file-input" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => { selectIcon(card.slot, event.target.files?.[0]); event.currentTarget.value = ""; }} />
+          {card.iconData && <button className="public-card-icon-remove" type="button" onClick={() => setCards((current) => current.map((item) => item.slot === card.slot ? { ...item, iconData: null } : item))}>Remove icon</button>}
+          <small>PNG, JPEG or WebP · 256 KB max</small>
+        </div>
+        <div className="public-card-editor-actions">
+          <button type="submit" disabled={isSaving}>{isSaving ? "Saving..." : "Save"}</button>
+          <button className="remove" type="button" disabled={isSaving || (!card.title && !card.url && !card.description && !card.techStack && !card.iconData)} onClick={() => removeCard(card.slot)}>Remove</button>
+        </div>
+      </form>
+    );
+  }
+
+  if (standalone) {
+    const selectedCard = selectedSlot ? cards.find((card) => card.slot === selectedSlot) ?? null : null;
+    return (
+      <main className="public-cards-page">
+        <SiteHeader user={user ?? null} />
+        <div className="public-cards-page-shell">
+          <div className="public-cards-page-layout">
+            <section className="public-cards-list" aria-label="Public cards">
+              {cards.map((card) => (
+                <button className={`public-cards-list-row${selectedSlot === card.slot ? " is-selected" : ""}`} type="button" key={card.slot} onClick={() => { setSelectedSlot(card.slot); setMessage(""); }} aria-pressed={selectedSlot === card.slot}>
+                  <span className="public-cards-list-mark">
+                    {card.iconData
+                      // eslint-disable-next-line @next/next/no-img-element
+                      ? <img src={card.iconData} alt="" />
+                      : String(card.slot).padStart(2, "0")}
+                  </span>
+                  <span className="public-cards-list-copy"><strong>{card.title || "Untitled card"}</strong><small>{card.url || "No destination yet"}</small></span>
+                  <span className="public-cards-list-mode">Public page</span>
+                  <span className="public-cards-list-number">{String(card.slot).padStart(2, "0")}</span>
+                </button>
+              ))}
+            </section>
+            <aside className="public-cards-detail" aria-live="polite">
+              {selectedCard ? renderStandaloneDetails(selectedCard) : <div className="public-cards-detail-empty"><span>Select a card</span><p>Choose a card from the list to edit its details.</p></div>}
+            </aside>
+          </div>
+          <footer className="public-cards-page-footer"><span role="status">{message}</span><span>Changes save to the public page.</span></footer>
+        </div>
+      </main>
+    );
   }
 
   return (
